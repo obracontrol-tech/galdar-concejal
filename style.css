@@ -449,3 +449,53 @@ header {
   vertical-align: middle;
 }
 .badge-anonimo strong { color: #C0392B; }
+
+/* TABS PANEL */
+.tabs-panel { display:flex; gap:8px; padding:0 1rem; margin-bottom:1rem; }
+.tab-panel { flex:1; padding:10px 0; font-size:13px; font-weight:500; border:1px solid #dde1e8; border-radius:8px; background:#fff; color:#666; cursor:pointer; text-align:center; }
+.tab-panel.active { background:#1A3A6B; color:#fff; border-color:#1A3A6B; }
+.tab-content { display:block; }
+.tab-content.hidden { display:none; }
+
+/* INTELIGENCIA */
+.intel-section { margin-bottom:1.25rem; padding:0 1rem; }
+.intel-title { font-size:11px; font-weight:600; color:var(--color-text-secondary); letter-spacing:0.06em; margin-bottom:10px; padding-bottom:6px; border-bottom:0.5px solid var(--color-border-tertiary); }
+
+/* CALOR */
+.calor-row { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+.calor-name { font-size:12px; color:var(--color-text-primary); min-width:110px; }
+.calor-bar-wrap { flex:1; height:14px; background:var(--color-background-secondary); border-radius:4px; overflow:hidden; }
+.calor-bar { height:100%; border-radius:4px; }
+.calor-num { font-size:11px; font-weight:500; min-width:20px; text-align:right; }
+.calor-leyenda { display:flex; gap:12px; margin-top:8px; flex-wrap:wrap; }
+.calor-leyenda span { display:flex; align-items:center; gap:4px; font-size:10px; color:var(--color-text-secondary); }
+.dot { width:8px; height:8px; border-radius:2px; display:inline-block; }
+
+/* VOTO */
+.voto-card { background:var(--color-background-primary); border:0.5px solid var(--color-border-tertiary); border-radius:10px; padding:10px 12px; margin-bottom:8px; }
+.voto-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+.voto-barrio { font-size:13px; font-weight:500; color:var(--color-text-primary); }
+.voto-badge { font-size:10px; font-weight:500; padding:2px 8px; border-radius:20px; }
+.badge-alto { background:#EAF3DE; color:#3B6D11; }
+.badge-medio { background:#FFF3E0; color:#E8650A; }
+.badge-bajo { background:#F5F5F5; color:#888; }
+.voto-bar-wrap { height:8px; background:var(--color-background-secondary); border-radius:4px; overflow:hidden; margin-bottom:6px; }
+.voto-bar { height:100%; border-radius:4px; }
+.voto-footer { display:flex; justify-content:space-between; font-size:11px; color:var(--color-text-secondary); }
+
+/* SONDEO */
+.sondeo-box { background:var(--color-background-primary); border:0.5px solid var(--color-border-tertiary); border-radius:10px; padding:12px 14px; }
+.sondeo-q { font-size:12px; color:var(--color-text-secondary); margin-bottom:10px; text-align:center; }
+.sondeo-opt { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+.sondeo-label { font-size:12px; color:var(--color-text-primary); min-width:90px; }
+.sondeo-bar-wrap { flex:1; height:14px; background:var(--color-background-secondary); border-radius:4px; overflow:hidden; }
+.sondeo-bar { height:100%; border-radius:4px; }
+.sondeo-pct { font-size:11px; font-weight:500; min-width:28px; text-align:right; color:var(--color-text-primary); }
+.sondeo-total { font-size:11px; color:var(--color-text-secondary); text-align:center; margin-top:8px; }
+
+/* INSIGHTS */
+.ia-insight { background:#EEF2FB; border:0.5px solid #C5D3EE; border-radius:8px; padding:10px 12px; margin-bottom:8px; }
+.ia-insight-label { font-size:10px; font-weight:600; color:#1A3A6B; letter-spacing:0.06em; margin-bottom:4px; }
+.ia-insight-text { font-size:12px; color:#333; line-height:1.5; }
+.ia-insight-text b { color:#1A3A6B; }
+.btn-ia { display:flex; align-items:center; justify-content:center; gap:6px; width:100%; padding:11px; font-size:13px; font-weight:500; background:#F5C800; color:#1A3A6B; border:none; border-radius:8px; cursor:pointer; margin-top:4px; }
