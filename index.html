@@ -64,13 +64,13 @@
         <div class="stat-card"><div class="stat-num" id="intel-total">0</div><div class="stat-lbl">Quejas totales</div></div>
         <div class="stat-card"><div class="stat-num" id="intel-barrios">0</div><div class="stat-lbl">Barrios activos</div></div>
         <div class="stat-card"><div class="stat-num" id="intel-voto">—</div><div class="stat-lbl">Voto potencial</div></div>
-        <div class="stat-card"><div class="stat-num" id="intel-sondeo">—</div><div class="stat-lbl">Sí votarían</div></div>
+        <div class="stat-card"><div class="stat-num" id="intel-sondeo">—</div><div class="stat-lbl">Buena iniciativa</div></div>
       </div>
       <div class="intel-section"><div class="intel-title">MAPA DE CALOR POR BARRIO</div><div id="calor-list"></div><div class="calor-leyenda"><span><span class="dot" style="background:#E24B4A"></span>Muy alta</span><span><span class="dot" style="background:#E8650A"></span>Alta</span><span><span class="dot" style="background:#F5C800"></span>Media</span><span><span class="dot" style="background:#C5D3EE"></span>Baja</span></div></div>
       <div class="intel-section"><div class="intel-title">TENDENCIA MENSUAL</div><div style="position:relative;width:100%;height:180px;"><canvas id="chart-tendencia" role="img" aria-label="Tendencia mensual de quejas">Tendencia mensual.</canvas></div></div>
       <div class="intel-section"><div class="intel-title">QUEJAS POR CATEGORÍA</div><div style="position:relative;width:100%;" id="chart-cat-wrap"><canvas id="chart-cat" role="img" aria-label="Quejas por categoría">Por categoría.</canvas></div></div>
       <div class="intel-section"><div class="intel-title">ESTIMADOR DE VOTO POTENCIAL</div><div id="voto-list"></div></div>
-      <div class="intel-section"><div class="intel-title">SONDEO — ¿VOTARÍAS A JOSÉ BLAS?</div><div class="sondeo-box"><div class="sondeo-q">Respuestas recogidas al final de cada queja</div><div id="sondeo-opts"></div><div class="sondeo-total" id="sondeo-total"></div></div></div>
+      <div class="intel-section"><div class="intel-title">VALORACIÓN CIUDADANA</div><div class="sondeo-box"><div class="sondeo-q">¿Te ha resultado útil poder enviar esta queja directamente al concejal?</div><div id="sondeo-opts"></div><div class="sondeo-total" id="sondeo-total"></div></div></div>
       <div class="intel-section"><div class="intel-title">ANÁLISIS IA — RECOMENDACIONES</div><div id="insights-list"></div><button class="btn-ia" onclick="generarAnalisisCompleto()"><span id="ia-analisis-icono">✦</span> Análisis estratégico completo</button><div id="analisis-resultado" class="ia-box hidden" style="margin-top:10px"></div></div>
     </div>
   </div>
@@ -157,7 +157,7 @@ function renderInteligencia() {
   else{barriosOrden.forEach(([b,n])=>{const pot=Math.min(Math.round(n/maxQ*75+15),85);const niv=pot>=55?'alto':pot>=35?'medio':'bajo';const bc=niv==='alto'?'badge-alto':niv==='medio'?'badge-medio':'badge-bajo';const bt=niv==='alto'?'Potencial alto':niv==='medio'?'Potencial medio':'Potencial bajo';const col=niv==='alto'?'#3B6D11':niv==='medio'?'#E8650A':'#C5D3EE';votoList.innerHTML+=`<div class="voto-card"><div class="voto-header"><span class="voto-barrio">${b}</span><span class="voto-badge ${bc}">${bt}</span></div><div class="voto-bar-wrap"><div class="voto-bar" style="width:${pot}%;background:${col}"></div></div><div class="voto-footer"><span>${n} quejas</span><span style="font-weight:500;color:${col}">${pot}% est.</span></div></div>`;});}
   // Sondeo
   const so=document.getElementById('sondeo-opts');so.innerHTML='';
-  if(totalSondeo>0){[{l:'Sí, le votaría',v:sondeo.si,c:'#3B6D11'},{l:'Tal vez',v:sondeo.talvez,c:'#E8650A'},{l:'No lo sé',v:sondeo.no,c:'#C5D3EE'}].forEach(o=>{const p=Math.round(o.v/totalSondeo*100);so.innerHTML+=`<div class="sondeo-opt"><span class="sondeo-label">${o.l}</span><div class="sondeo-bar-wrap"><div class="sondeo-bar" style="width:${p}%;background:${o.c}"></div></div><span class="sondeo-pct">${p}%</span></div>`;});document.getElementById('sondeo-total').textContent=`Total: ${totalSondeo} respuestas · Margen: ±${Math.round(100/Math.sqrt(totalSondeo))}%`;}
+  if(totalSondeo>0){[{l:'👍 Sí, buena iniciativa',v:sondeo.si,c:'#3B6D11'},{l:'🤔 Esperaré resultados',v:sondeo.talvez,c:'#E8650A'},{l:'👎 Prefiero otro canal',v:sondeo.no,c:'#C5D3EE'}].forEach(o=>{const p=Math.round(o.v/totalSondeo*100);so.innerHTML+=`<div class="sondeo-opt"><span class="sondeo-label">${o.l}</span><div class="sondeo-bar-wrap"><div class="sondeo-bar" style="width:${p}%;background:${o.c}"></div></div><span class="sondeo-pct">${p}%</span></div>`;});document.getElementById('sondeo-total').textContent=`Total: ${totalSondeo} respuestas · Margen: ±${Math.round(100/Math.sqrt(totalSondeo))}%`;}
   else{so.innerHTML='<p class="sin-quejas">Sin respuestas aún — se recogen al enviar quejas</p>';}
   // Insights
   const il=document.getElementById('insights-list');il.innerHTML='';
