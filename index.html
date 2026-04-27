@@ -321,8 +321,10 @@ INSTRUCCIONES:
     historialChat.push({ role: 'assistant', content: respuesta });
 
     const loadEl = document.getElementById(loadId);
-    if (loadEl) loadEl.outerHTML = `<div class="msg-ia"><div class="msg-avatar">IA</div><div class="msg-bubble-ia">${respuesta.replace(/
-/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</div></div>`;
+    if (loadEl) {
+      const htmlResp = respuesta.split('\n').join('<br>');
+      loadEl.outerHTML = '<div class="msg-ia"><div class="msg-avatar">IA</div><div class="msg-bubble-ia">' + htmlResp + '</div></div>';
+    }
 
   } catch(e) {
     const loadEl = document.getElementById(loadId);
