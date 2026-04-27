@@ -142,7 +142,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const PIN = "galdar2025";
 let quejasCache = [], filtroActual = "todas", chartTend = null, chartCat = null;
-window.addEventListener('load', () => setTimeout(() => { document.getElementById('splash').classList.add('hidden'); document.getElementById('app').classList.remove('hidden'); }, 1000));
+// Sin splash - app carga directamente
 // cambiarPanelTab definida abajo con soporte asesor
 window._verificarPin = function() {
   if(document.getElementById('pin-input').value===PIN){ document.getElementById('login-box').classList.add('hidden'); document.getElementById('panel-principal').classList.remove('hidden'); document.getElementById('pin-error').classList.add('hidden'); cargarQuejas(); }
