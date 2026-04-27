@@ -121,6 +121,19 @@
   </div>
 </div>
 <div id="modal-post" class="modal-overlay hidden"><div class="modal-box"><div class="ia-label">POST FACEBOOK</div><p id="modal-post-texto"></p><button class="btn-primary" onclick="copiarPostModal()">Copiar</button><button class="btn-secondary" onclick="document.getElementById('modal-post').classList.add('hidden')">Cerrar</button></div></div>
+<script>
+// Wrapper para exponer funciones del módulo al HTML
+function verificarPin() { if(window._verificarPin) window._verificarPin(); }
+function cerrarSesion() { if(window._cerrarSesion) window._cerrarSesion(); }
+function cambiarPanelTab(t,b) { if(window._cambiarPanelTab) window._cambiarPanelTab(t,b); }
+function filtrar(e,b) { if(window._filtrar) window._filtrar(e,b); }
+function cambiarEstado(i,e) { if(window._cambiarEstado) window._cambiarEstado(i,e); }
+function generarPost(i,ba,c,d) { if(window._generarPost) window._generarPost(i,ba,c,d); }
+function copiarPostModal() { if(window._copiarPostModal) window._copiarPostModal(); }
+function generarAnalisisCompleto() { if(window._generarAnalisisCompleto) window._generarAnalisisCompleto(); }
+function enviarAsesor() { if(window._enviarAsesor) window._enviarAsesor(); }
+function preguntaRapida(t) { if(window._preguntaRapida) window._preguntaRapida(t); }
+</script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, doc, updateDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -321,18 +334,6 @@ INSTRUCCIONES:
 
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
 </script>
-<script>
-// Wrapper para exponer funciones del módulo al HTML
-function verificarPin() { if(window._verificarPin) window._verificarPin(); }
-function cerrarSesion() { if(window._cerrarSesion) window._cerrarSesion(); }
-function cambiarPanelTab(t,b) { if(window._cambiarPanelTab) window._cambiarPanelTab(t,b); }
-function filtrar(e,b) { if(window._filtrar) window._filtrar(e,b); }
-function cambiarEstado(i,e) { if(window._cambiarEstado) window._cambiarEstado(i,e); }
-function generarPost(i,ba,c,d) { if(window._generarPost) window._generarPost(i,ba,c,d); }
-function copiarPostModal() { if(window._copiarPostModal) window._copiarPostModal(); }
-function generarAnalisisCompleto() { if(window._generarAnalisisCompleto) window._generarAnalisisCompleto(); }
-function enviarAsesor() { if(window._enviarAsesor) window._enviarAsesor(); }
-function preguntaRapida(t) { if(window._preguntaRapida) window._preguntaRapida(t); }
-</script>
+
 </body>
 </html>
