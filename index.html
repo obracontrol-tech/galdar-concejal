@@ -131,11 +131,11 @@ const PIN = "galdar2025";
 let quejasCache = [], filtroActual = "todas", chartTend = null, chartCat = null;
 window.addEventListener('load', () => setTimeout(() => { document.getElementById('splash').classList.add('hidden'); document.getElementById('app').classList.remove('hidden'); }, 1000));
 // cambiarPanelTab definida abajo con soporte asesor
-window.verificarPin = function() {
+window._verificarPin = function() {
   if(document.getElementById('pin-input').value===PIN){ document.getElementById('login-box').classList.add('hidden'); document.getElementById('panel-principal').classList.remove('hidden'); document.getElementById('pin-error').classList.add('hidden'); cargarQuejas(); }
   else { document.getElementById('pin-error').classList.remove('hidden'); document.getElementById('pin-input').value=''; }
 }
-window.cerrarSesion = function() { document.getElementById('panel-principal').classList.add('hidden'); document.getElementById('login-box').classList.remove('hidden'); document.getElementById('pin-input').value=''; }
+window._cerrarSesion = function() { document.getElementById('panel-principal').classList.add('hidden'); document.getElementById('login-box').classList.remove('hidden'); document.getElementById('pin-input').value=''; }
 function cargarQuejas() {
   onSnapshot(query(collection(db,"quejas"), orderBy("fecha","desc")), (snap) => { quejasCache = snap.docs.map(d=>({id:d.id,...d.data()})); renderQuejas(); });
 }
@@ -222,7 +222,7 @@ window.copiarPostModal=function(){navigator.clipboard.writeText(document.getElem
 // ── ASESOR POLÍTICO
 let historialChat = [];
 
-window.cambiarPanelTab = function(tab, btn) {
+window._cambiarPanelTab = function(tab, btn) {
   document.querySelectorAll('.tab-panel').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.add('hidden'));
   btn.classList.add('active');
@@ -233,12 +233,12 @@ window.cambiarPanelTab = function(tab, btn) {
   if(tab==='intel') renderInteligencia();
 }
 
-window.preguntaRapida = function(texto) {
+window._preguntaRapida = function(texto) {
   document.getElementById('asesor-input').value = texto;
   enviarAsesor();
 }
 
-window.enviarAsesor = async function() {
+window._enviarAsesor = async function() {
   const input = document.getElementById('asesor-input');
   const texto = input.value.trim();
   if (!texto) return;
@@ -320,6 +320,19 @@ INSTRUCCIONES:
 }
 
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
+</script>
+<script>
+// Wrapper para exponer funciones del módulo al HTML
+function verificarPin() { if(window._verificarPin) window._verificarPin(); }
+function cerrarSesion() { if(window._cerrarSesion) window._cerrarSesion(); }
+function cambiarPanelTab(t,b) { if(window._cambiarPanelTab) window._cambiarPanelTab(t,b); }
+function filtrar(e,b) { if(window._filtrar) window._filtrar(e,b); }
+function cambiarEstado(i,e) { if(window._cambiarEstado) window._cambiarEstado(i,e); }
+function generarPost(i,ba,c,d) { if(window._generarPost) window._generarPost(i,ba,c,d); }
+function copiarPostModal() { if(window._copiarPostModal) window._copiarPostModal(); }
+function generarAnalisisCompleto() { if(window._generarAnalisisCompleto) window._generarAnalisisCompleto(); }
+function enviarAsesor() { if(window._enviarAsesor) window._enviarAsesor(); }
+function preguntaRapida(t) { if(window._preguntaRapida) window._preguntaRapida(t); }
 </script>
 </body>
 </html>
