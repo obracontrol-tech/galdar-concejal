@@ -10,6 +10,17 @@
   <link rel="apple-touch-icon" href="logo.png">
   <link rel="stylesheet" href="style.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <script>
+    // Forzar limpieza de caché y Service Workers antiguos
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(regs => {
+        regs.forEach(reg => reg.unregister());
+      });
+    }
+    if ('caches' in window) {
+      caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+    }
+  </script>
 </head>
 <body>
 <div id="splash"><img src="logo.png" alt="Unidos por Gran Canaria"><p>Cargando panel...</p></div>
