@@ -21,6 +21,8 @@
       caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
     }
   </script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 <div id="app">
@@ -121,36 +123,23 @@
   </div>
 </div>
 <div id="modal-post" class="modal-overlay hidden"><div class="modal-box"><div class="ia-label">POST FACEBOOK</div><p id="modal-post-texto"></p><button class="btn-primary" onclick="copiarPostModal()">Copiar</button><button class="btn-secondary" onclick="document.getElementById('modal-post').classList.add('hidden')">Cerrar</button></div></div>
-<script>
-// Wrapper para exponer funciones del módulo al HTML
-function verificarPin() { if(window._verificarPin) window._verificarPin(); }
-function cerrarSesion() { if(window._cerrarSesion) window._cerrarSesion(); }
-function cambiarPanelTab(t,b) { if(window._cambiarPanelTab) window._cambiarPanelTab(t,b); }
-function filtrar(e,b) { if(window._filtrar) window._filtrar(e,b); }
-function cambiarEstado(i,e) { if(window._cambiarEstado) window._cambiarEstado(i,e); }
-function generarPost(i,ba,c,d) { if(window._generarPost) window._generarPost(i,ba,c,d); }
-function copiarPostModal() { if(window._copiarPostModal) window._copiarPostModal(); }
-function generarAnalisisCompleto() { if(window._generarAnalisisCompleto) window._generarAnalisisCompleto(); }
-function enviarAsesor() { if(window._enviarAsesor) window._enviarAsesor(); }
-function preguntaRapida(t) { if(window._preguntaRapida) window._preguntaRapida(t); }
-</script>
+
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, doc, updateDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+// Firebase loaded via CDN scripts in head
 const firebaseConfig = { apiKey:"AIzaSyArK1mSHIHsxObbPxsG8VB7HgFMy2tC-6U", authDomain:"galdar-quejas.firebaseapp.com", projectId:"galdar-quejas", storageBucket:"galdar-quejas.firebasestorage.app", messagingSenderId:"260225193649", appId:"1:260225193649:web:6ca2c3ef2007685850f490" };
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const app = firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 const PIN = "galdar2025";
 let quejasCache = [], filtroActual = "todas", chartTend = null, chartCat = null;
 // Sin splash - app carga directamente
-// cambiarPanelTab definida abajo con soporte asesor
-window._verificarPin = function() {
+
+window.verificarPin = function() {
   if(document.getElementById('pin-input').value===PIN){ document.getElementById('login-box').classList.add('hidden'); document.getElementById('panel-principal').classList.remove('hidden'); document.getElementById('pin-error').classList.add('hidden'); cargarQuejas(); }
   else { document.getElementById('pin-error').classList.remove('hidden'); document.getElementById('pin-input').value=''; }
 }
-window._cerrarSesion = function() { document.getElementById('panel-principal').classList.add('hidden'); document.getElementById('login-box').classList.remove('hidden'); document.getElementById('pin-input').value=''; }
+window.cerrarSesion = function() { document.getElementById('panel-principal').classList.add('hidden'); document.getElementById('login-box').classList.remove('hidden'); document.getElementById('pin-input').value=''; }
 function cargarQuejas() {
-  onSnapshot(query(collection(db,"quejas"), orderBy("fecha","desc")), (snap) => { quejasCache = snap.docs.map(d=>({id:d.id,...d.data()})); renderQuejas(); });
+  db.collection("quejas").orderBy("fecha","desc").onSnapshot((snap) => { quejasCache = snap.docs.map(d=>({id:d.id,...d.data()})); renderQuejas(); });
 }
 function renderQuejas() {
   document.getElementById('st-total').textContent=quejasCache.length;
@@ -166,7 +155,7 @@ function renderQuejas() {
   }).join('');
 }
 window.filtrar=function(estado,btn){filtroActual=estado;document.querySelectorAll('.filtro').forEach(f=>f.classList.remove('active'));btn.classList.add('active');renderQuejas();}
-window.cambiarEstado=async function(id,estado){try{await updateDoc(doc(db,"quejas",id),{estado});}catch(e){console.error(e);}}
+window.cambiarEstado=async function(id,estado){try{await db.collection("quejas").doc(id).update({estado});}catch(e){console.error(e);}}
 function renderInteligencia() {
   const total=quejasCache.length;
   const porBarrio={},porCat={},porMes={},sondeo={si:0,talvez:0,no:0};
@@ -235,7 +224,7 @@ window.copiarPostModal=function(){navigator.clipboard.writeText(document.getElem
 // ── ASESOR POLÍTICO
 let historialChat = [];
 
-window._cambiarPanelTab = function(tab, btn) {
+window.cambiarPanelTab = function(tab, btn) {
   document.querySelectorAll('.tab-panel').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.add('hidden'));
   btn.classList.add('active');
@@ -246,12 +235,12 @@ window._cambiarPanelTab = function(tab, btn) {
   if(tab==='intel') renderInteligencia();
 }
 
-window._preguntaRapida = function(texto) {
+window.preguntaRapida = function(texto) {
   document.getElementById('asesor-input').value = texto;
   enviarAsesor();
 }
 
-window._enviarAsesor = async function() {
+window.enviarAsesor = async function() {
   const input = document.getElementById('asesor-input');
   const texto = input.value.trim();
   if (!texto) return;
