@@ -223,13 +223,13 @@ window.generarAnalisisCompleto=async function(){
   const total=quejasCache.length;const porBarrio={};const porCat={};
   quejasCache.forEach(q=>{if(q.barrio)porBarrio[q.barrio]=(porBarrio[q.barrio]||0)+1;if(q.categoria)porCat[q.categoria]=(porCat[q.categoria]||0)+1;});
   const topB=Object.entries(porBarrio).sort((a,b)=>b[1]-a[1])[0];const topC=Object.entries(porCat).sort((a,b)=>b[1]-a[1])[0];
-  try{const r=await fetch("https://api.anthropic.com/v1/messages",,{method:'POST',headers:{'Content-Type':'application/json','anthropic-dangerous-allow-browser':'true','anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,messages:[{role:'user',content:`Eres un asesor político experto. Analiza estos datos de José Blas Díaz Bolaños (concejal UxGC, oposición en Gáldar): Total quejas: ${total}, Barrio top: ${topB?topB[0]+' ('+topB[1]+')':'sin datos'}, Categoría top: ${topC?topC[0]+' ('+topC[1]+')':'sin datos'}, Barrios: ${Object.keys(porBarrio).join(', ')||'sin datos'}. Dame 4-5 recomendaciones estratégicas concretas para 2027. Responde directo en español.`}]})});
+  try{const r=await fetch("https://orange-boat-6d42.pedrosaborrego.workers.dev/",,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,messages:[{role:'user',content:`Eres un asesor político experto. Analiza estos datos de José Blas Díaz Bolaños (concejal UxGC, oposición en Gáldar): Total quejas: ${total}, Barrio top: ${topB?topB[0]+' ('+topB[1]+')':'sin datos'}, Categoría top: ${topC?topC[0]+' ('+topC[1]+')':'sin datos'}, Barrios: ${Object.keys(porBarrio).join(', ')||'sin datos'}. Dame 4-5 recomendaciones estratégicas concretas para 2027. Responde directo en español.`}]})});
   const d=await r.json();res.innerHTML=d.content[0].text.replace(/\n/g,'<br>');}catch(e){res.textContent='Error al conectar.';}
   btn.textContent='✦';
 }
 window.generarPost=async function(id,barrio,categoria,descripcion){
   document.getElementById('modal-post-texto').textContent='Generando...';document.getElementById('modal-post').classList.remove('hidden');
-  try{const r=await fetch("https://api.anthropic.com/v1/messages",,{method:'POST',headers:{'Content-Type':'application/json','anthropic-dangerous-allow-browser':'true','anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,messages:[{role:'user',content:`Post Facebook para José Blas, concejal UxGC Gáldar. Queja: ${barrio}, ${categoria}: "${descripcion}". Tono cercano, 3-4 frases, #Gáldar #UnidosPorGranCanaria. Solo el texto.`}]})});const d=await r.json();document.getElementById('modal-post-texto').textContent=d.content[0].text;}catch(e){document.getElementById('modal-post-texto').textContent='Error.';}
+  try{const r=await fetch("https://orange-boat-6d42.pedrosaborrego.workers.dev/",,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,messages:[{role:'user',content:`Post Facebook para José Blas, concejal UxGC Gáldar. Queja: ${barrio}, ${categoria}: "${descripcion}". Tono cercano, 3-4 frases, #Gáldar #UnidosPorGranCanaria. Solo el texto.`}]})});const d=await r.json();document.getElementById('modal-post-texto').textContent=d.content[0].text;}catch(e){document.getElementById('modal-post-texto').textContent='Error.';}
 }
 window.copiarPostModal=function(){navigator.clipboard.writeText(document.getElementById('modal-post-texto').textContent).then(()=>{alert('¡Copiado!');document.getElementById('modal-post').classList.add('hidden');});}
 // ── ASESOR POLÍTICO
@@ -307,8 +307,8 @@ INSTRUCCIONES:
   if (historialChat.length > 10) historialChat = historialChat.slice(-10);
 
   try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: 'POST', headers: {'Content-Type':'application/json','anthropic-dangerous-allow-browser':'true','anthropic-version':'2023-06-01'},
+    const res = await fetch("https://orange-boat-6d42.pedrosaborrego.workers.dev/", {
+      method: 'POST', headers: {'Content-Type':'application/json'},
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 800,
