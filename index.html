@@ -307,7 +307,7 @@ function enviarAsesor() {
   quejasCache.forEach(function(q){if(q.barrio)porBarrio[q.barrio]=(porBarrio[q.barrio]||0)+1;if(q.categoria)porCat[q.categoria]=(porCat[q.categoria]||0)+1;});
   var topB=Object.entries(porBarrio).sort(function(a,b){return b[1]-a[1];})[0];
   var topC=Object.entries(porCat).sort(function(a,b){return b[1]-a[1];})[0];
-  var system='Eres el asesor politico personal de Jose Blas Diaz Bolanos, concejal de Unidos por Gran Canaria en Galdar. Es agricultor platanero. Su identidad: El Platanero del Pleno. El alcalde lleva desde 2007. Objetivo: crecer de 1 a 3-4 concejales en 2027. Datos app: '+total+' quejas, barrio top: '+(topB?topB[0]:'sin datos')+', categoria top: '+(topC?topC[0]:'sin datos')+'. Responde siempre en espanol, directo y practico.';
+  var system='Eres el asesor politico personal de Jose Blas Diaz Bolanos, concejal de Unidos por Gran Canaria en Galdar. El alcalde lleva desde 2007. Objetivo: crecer de 1 a 3-4 concejales en 2027. Datos app: '+total+' quejas, barrio top: '+(topB?topB[0]:'sin datos')+', categoria top: '+(topC?topC[0]:'sin datos')+'. Responde siempre en espanol, directo y practico.';
   historialChat.push({role:'user',content:texto});
   if (historialChat.length>10) historialChat=historialChat.slice(-10);
   llamarIA(historialChat,system,800)
