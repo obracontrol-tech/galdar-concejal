@@ -164,9 +164,40 @@ function cambiarTab(tab) {
   if (tab === 'intel') renderInteligencia();
 }
 
+var TELEGRAM_TOKEN = "8772067102:AAFNR2Txk6P9XxLZg9GZwunT4v1YcdNLEZY";
+var TELEGRAM_CHAT_ID = "8601457137";
+var quejasConocidas = null;
+
+function enviarTelegram(mensaje) {
+  fetch(WORKER_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      telegram: true,
+      token: TELEGRAM_TOKEN,
+      chat_id: TELEGRAM_CHAT_ID,
+      text: mensaje
+    })
+  }).catch(function(e) { console.log('Telegram error:', e); });
+}
+
 function cargarQuejas() {
   db.collection("quejas").orderBy("fecha", "desc").onSnapshot(function(snap) {
-    quejasCache = snap.docs.map(function(d) { return Object.assign({ id: d.id }, d.data()); });
+    var nuevas = snap.docs.map(function(d) { return Object.assign({ id: d.id }, d.data()); });
+    if (quejasConocidas !== null) {
+      nuevas.forEach(function(q) {
+        var eraConocida = quejasConocidas.some(function(c) { return c.id === q.id; });
+        if (!eraConocida) {
+          var msg = "🔔 Nueva queja en Gáldar\n" +
+            "📍 " + (q.barrio || 'Sin barrio') + " · " + (q.categoria || 'Sin categoría') + "\n" +
+            "👤 " + (q.nombre || 'Anónimo') + "\n" +
+            "💬 " + (q.descripcion || '').substring(0, 100);
+          enviarTelegram(msg);
+        }
+      });
+    }
+    quejasConocidas = nuevas;
+    quejasCache = nuevas;
     renderQuejas();
   });
 }
