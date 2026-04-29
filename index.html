@@ -18,8 +18,17 @@
     .sug-barrio{font-size:12px;font-weight:700;color:#3B6D11;background:#3B6D1115;padding:3px 8px;border-radius:20px;}
     .sug-fecha{font-size:11px;color:#aaa;}
     .sug-texto{font-size:13px;color:#333;margin-bottom:6px;line-height:1.5;}
-    .sug-nombre{font-size:11px;color:#888;}
+    .sug-nombre{font-size:11px;color:#888;margin-bottom:10px;}
+    .sug-acciones{display:flex;gap:6px;flex-wrap:wrap;}
+    .btn-sug-accion{border:none;border-radius:20px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;}
+    .btn-sug-wa{background:#25D36620;color:#128C7E;}
+    .btn-sug-fb{background:#1877F220;color:#1877F2;}
+    .btn-sug-pleno{background:#1A3A6B20;color:#1A3A6B;}
     .sug-stat .stat-num{color:#3B6D11;}
+    .modal-sug-box{background:#fff;border-radius:16px;padding:24px;margin:20px;max-width:500px;position:relative;}
+    .modal-sug-label{font-size:11px;font-weight:700;letter-spacing:1px;color:#888;margin-bottom:8px;}
+    .modal-sug-texto{font-size:14px;color:#222;line-height:1.6;margin-bottom:16px;white-space:pre-wrap;}
+    .modal-sug-btns{display:flex;gap:8px;}
   </style>
 </head>
 <body>
@@ -115,9 +124,9 @@
         <div class="asesor-chips">
           <button class="chip" onclick="preguntaRapida('Redacta una respuesta a un vecino que se queja de baches en su calle, con tono cercano y propositivo')">Responder queja de vecino</button>
           <button class="chip" onclick="preguntaRapida('Preparame una pregunta contundente para llevar al pleno municipal sobre el estado de las vias publicas en Galdar, con datos y tono propositivo')">Pregunta para el pleno</button>
-          <button class="chip" onclick="preguntaRapida('Escribeme un post de Facebook sobre mi trabajo como concejal esta semana, mencionando que recibo quejas directas de los vecinos por app. Tono cercano y autentico')">Post Facebook semanal</button>
+          <button class="chip" onclick="preguntaRapida('Escribeme un post de Facebook sobre mi trabajo como concejal esta semana, mencionando que recibo quejas y sugerencias directas de los vecinos por app. Tono cercano y autentico')">Post Facebook semanal</button>
           <button class="chip" onclick="preguntaRapida('Dame 3 argumentos concretos para usar en el proximo pleno municipal sobre problemas de iluminacion, baches y limpieza en Galdar')">Argumentos para el pleno</button>
-          <button class="chip" onclick="preguntaRapida('Redacta un mensaje de WhatsApp para enviar a mis contactos de La Montana explicandoles que pueden enviarme sus quejas directamente por la app')">WhatsApp para vecinos</button>
+          <button class="chip" onclick="preguntaRapida('Redacta un mensaje de WhatsApp para enviar a mis contactos de La Montana explicandoles que pueden enviarme sus quejas y sugerencias directamente por la app')">WhatsApp para vecinos</button>
           <button class="chip" onclick="preguntaRapida('Analiza mi situacion: soy Jose Blas Diaz Bolanos, unico concejal de UxGC en Galdar. El alcalde lleva desde 2007. Dame 3 acciones para ganar visibilidad antes de 2027')">Estrategia 2027</button>
         </div>
       </div>
@@ -130,12 +139,25 @@
   </div>
 </div>
 
+<!-- MODAL POST QUEJA -->
 <div id="modal-post" class="modal-overlay hidden">
   <div class="modal-box">
     <div class="ia-label">POST FACEBOOK</div>
     <p id="modal-post-texto"></p>
     <button class="btn-primary" onclick="copiarPostModal()">Copiar</button>
     <button class="btn-secondary" onclick="document.getElementById('modal-post').classList.add('hidden')">Cerrar</button>
+  </div>
+</div>
+
+<!-- MODAL SUGERENCIA -->
+<div id="modal-sug" class="modal-overlay hidden">
+  <div class="modal-sug-box">
+    <div class="modal-sug-label" id="modal-sug-label">MENSAJE</div>
+    <div class="modal-sug-texto" id="modal-sug-texto">Generando...</div>
+    <div class="modal-sug-btns">
+      <button class="btn-primary" onclick="copiarModalSug()">Copiar</button>
+      <button class="btn-secondary" onclick="document.getElementById('modal-sug').classList.add('hidden')">Cerrar</button>
+    </div>
   </div>
 </div>
 
@@ -243,7 +265,6 @@ function renderSugerencias() {
   });
   var barrios = Object.keys(porBarrio).length;
   var topBarrio = Object.entries(porBarrio).sort(function(a,b){return b[1]-a[1];})[0];
-
   document.getElementById('sug-total').textContent = total;
   document.getElementById('sug-barrios').textContent = barrios;
   document.getElementById('sug-hoy').textContent = estaSemana;
@@ -256,12 +277,46 @@ function renderSugerencias() {
   }
   lista.innerHTML = sugerenciasCache.map(function(s) {
     var fecha = s.fecha && s.fecha.toDate ? s.fecha.toDate().toLocaleDateString('es-ES', {day:'numeric',month:'short',year:'numeric'}) : (s.fechaTexto||'');
+    var textoEsc = (s.texto||'').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    var barrioEsc = (s.barrio||'').replace(/'/g, "\\'");
+    var nombreEsc = (s.nombre||'Anonimo').replace(/'/g, "\\'");
     return '<div class="sug-card">' +
       '<div class="sug-header"><span class="sug-barrio">📍 ' + (s.barrio||'Sin barrio') + '</span><span class="sug-fecha">' + fecha + '</span></div>' +
       '<div class="sug-texto">' + (s.texto||'') + '</div>' +
       '<div class="sug-nombre">👤 ' + (s.nombre||'Anonimo') + '</div>' +
+      '<div class="sug-acciones">' +
+        '<button class="btn-sug-accion btn-sug-wa" onclick="responderSugerencia(\'wa\',\'' + barrioEsc + '\',\'' + nombreEsc + '\',\'' + textoEsc + '\')">💬 WhatsApp</button>' +
+        '<button class="btn-sug-accion btn-sug-fb" onclick="responderSugerencia(\'fb\',\'' + barrioEsc + '\',\'' + nombreEsc + '\',\'' + textoEsc + '\')">📘 Facebook</button>' +
+        '<button class="btn-sug-accion btn-sug-pleno" onclick="responderSugerencia(\'pleno\',\'' + barrioEsc + '\',\'' + nombreEsc + '\',\'' + textoEsc + '\')">📋 Pleno</button>' +
+      '</div>' +
       '</div>';
   }).join('');
+}
+
+function responderSugerencia(tipo, barrio, nombre, texto) {
+  var modal = document.getElementById('modal-sug');
+  var label = document.getElementById('modal-sug-label');
+  var contenido = document.getElementById('modal-sug-texto');
+  modal.classList.remove('hidden');
+  contenido.textContent = 'Generando con IA...';
+
+  var prompts = {
+    wa: 'Redacta un mensaje de WhatsApp de Jose Blas Diaz Bolanos (concejal UxGC Galdar) para agradecer y responder a un vecino llamado ' + nombre + ' del barrio ' + barrio + ' que ha enviado esta sugerencia: "' + texto + '". Tono cercano, personal, agradecido. Maximo 4 frases. Solo el texto del mensaje.',
+    fb: 'Redacta un post de Facebook de Jose Blas Diaz Bolanos (concejal UxGC Galdar) compartiendo publicamente esta sugerencia de un vecino de ' + barrio + ': "' + texto + '". Destaca que escucha a los vecinos, tono propositivo y cercano, 3-4 frases, incluye #Galdar #UnidosPorGranCanaria. Solo el texto.',
+    pleno: 'Redacta una propuesta formal para llevar al pleno municipal de Galdar basada en esta sugerencia vecinal del barrio ' + barrio + ': "' + texto + '". Formato: titulo de la propuesta, argumentacion en 2-3 puntos, solicitud concreta al ayuntamiento. Tono formal pero directo.'
+  };
+
+  var labels = { wa: 'WHATSAPP — RESPUESTA AL VECINO', fb: 'POST FACEBOOK — SUGERENCIA PUBLICA', pleno: 'PROPUESTA PARA EL PLENO' };
+  label.textContent = labels[tipo];
+
+  llamarIA([{ role: 'user', content: prompts[tipo] }], null, 500)
+    .then(function(txt) { contenido.textContent = txt; })
+    .catch(function() { contenido.textContent = 'Error al generar. Intentalo de nuevo.'; });
+}
+
+function copiarModalSug() {
+  navigator.clipboard.writeText(document.getElementById('modal-sug-texto').textContent)
+    .then(function() { alert('Copiado!'); document.getElementById('modal-sug').classList.add('hidden'); });
 }
 
 function renderQuejas() {
@@ -373,7 +428,8 @@ function generarAnalisisCompleto() {
   quejasCache.forEach(function(q){if(q.barrio)porBarrio[q.barrio]=(porBarrio[q.barrio]||0)+1;if(q.categoria)porCat[q.categoria]=(porCat[q.categoria]||0)+1;});
   var topB=Object.entries(porBarrio).sort(function(a,b){return b[1]-a[1];})[0];
   var topC=Object.entries(porCat).sort(function(a,b){return b[1]-a[1];})[0];
-  llamarIA([{role:'user',content:'Eres asesor politico. Analiza datos de Jose Blas Diaz Bolanos (concejal UxGC, oposicion en Galdar): Total quejas: '+total+', Barrio top: '+(topB?topB[0]+' ('+topB[1]+')':'sin datos')+', Categoria top: '+(topC?topC[0]+' ('+topC[1]+')':'sin datos')+', Barrios: '+Object.keys(porBarrio).join(', ')+'. Dame 4-5 recomendaciones estrategicas para 2027. Responde directo en espanol.'}],null,600)
+  var sugResumen=sugerenciasCache.slice(0,5).map(function(s){return s.barrio+': '+s.texto.substring(0,50);}).join(' | ');
+  llamarIA([{role:'user',content:'Eres asesor politico. Analiza datos de Jose Blas Diaz Bolanos (concejal UxGC, oposicion en Galdar): Total quejas: '+total+', Barrio top: '+(topB?topB[0]+' ('+topB[1]+')':'sin datos')+', Categoria top: '+(topC?topC[0]+' ('+topC[1]+')':'sin datos')+', Barrios: '+Object.keys(porBarrio).join(', ')+'. Sugerencias vecinos: '+(sugResumen||'sin datos')+'. Dame 4-5 recomendaciones estrategicas para 2027. Responde directo en espanol.'}],null,600)
     .then(function(texto){res.innerHTML=texto.split('\n').join('<br>');})
     .catch(function(){res.textContent='Error al conectar.';});
   btn.textContent='+';
@@ -401,7 +457,7 @@ function enviarAsesor() {
   var topB=Object.entries(porBarrio).sort(function(a,b){return b[1]-a[1];})[0];
   var topC=Object.entries(porCat).sort(function(a,b){return b[1]-a[1];})[0];
   var sugTextos=sugerenciasCache.slice(0,5).map(function(s){return s.barrio+': '+s.texto.substring(0,60);}).join(' | ');
-  var system='Eres el asesor politico personal de Jose Blas Diaz Bolanos, concejal de Unidos por Gran Canaria en Galdar. El alcalde lleva desde 2007. Objetivo: crecer de 1 a 3-4 concejales en 2027. Datos app: '+total+' quejas, barrio top: '+(topB?topB[0]:'sin datos')+', categoria top: '+(topC?topC[0]:'sin datos')+'. Sugerencias vecinos: '+( sugTextos||'sin datos')+'. Responde siempre en espanol, directo y practico.';
+  var system='Eres el asesor politico personal de Jose Blas Diaz Bolanos, concejal de Unidos por Gran Canaria en Galdar. El alcalde lleva desde 2007. Objetivo: crecer de 1 a 3-4 concejales en 2027. Datos app: '+total+' quejas, barrio top: '+(topB?topB[0]:'sin datos')+', categoria top: '+(topC?topC[0]:'sin datos')+'. Sugerencias vecinos: '+(sugTextos||'sin datos')+'. Responde siempre en espanol, directo y practico.';
   historialChat.push({role:'user',content:texto});
   if(historialChat.length>10)historialChat=historialChat.slice(-10);
   llamarIA(historialChat,system,800)
