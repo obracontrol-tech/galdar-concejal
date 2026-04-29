@@ -9,10 +9,13 @@
   <link rel="icon" href="logo.png">
   <link rel="apple-touch-icon" href="logo.png">
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <style>
+    /* SUGERENCIAS */
     .sug-card{background:#fff;border-radius:12px;padding:14px;margin-bottom:12px;border-left:4px solid #3B6D11;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
     .sug-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
     .sug-barrio{font-size:12px;font-weight:700;color:#3B6D11;background:#3B6D1115;padding:3px 8px;border-radius:20px;}
@@ -29,6 +32,19 @@
     .modal-sug-label{font-size:11px;font-weight:700;letter-spacing:1px;color:#888;margin-bottom:8px;}
     .modal-sug-texto{font-size:14px;color:#222;line-height:1.6;margin-bottom:16px;white-space:pre-wrap;}
     .modal-sug-btns{display:flex;gap:8px;}
+
+    /* MAPA */
+    #mapa-calor{width:100%;height:320px;border-radius:12px;overflow:hidden;margin-bottom:12px;border:1px solid #E8EDF5;}
+    .leaflet-popup-content-wrapper{border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,0.15);}
+    .popup-barrio{font-size:13px;}
+    .popup-barrio h4{margin:0 0 6px;font-size:14px;color:#1A3A6B;}
+    .popup-barrio .popup-num{font-size:28px;font-weight:700;color:#E24B4A;}
+    .popup-barrio .popup-lbl{font-size:11px;color:#888;}
+    .leyenda-mapa{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;font-size:12px;}
+    .leyenda-item{display:flex;align-items:center;gap:5px;}
+    .leyenda-dot{width:12px;height:12px;border-radius:50%;}
+    .zona-resumen{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+    .zona-chip{border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;color:#fff;}
   </style>
 </head>
 <body>
@@ -104,7 +120,22 @@
         <div class="stat-card"><div class="stat-num" id="intel-voto">-</div><div class="stat-lbl">Voto est.</div></div>
         <div class="stat-card"><div class="stat-num" id="intel-sondeo">-</div><div class="stat-lbl">Valoracion</div></div>
       </div>
-      <div class="intel-section"><div class="intel-title">MAPA DE CALOR</div><div id="calor-list"></div><div class="calor-leyenda"><span><span class="dot" style="background:#E24B4A"></span>Muy alta</span><span><span class="dot" style="background:#E8650A"></span>Alta</span><span><span class="dot" style="background:#F5C800"></span>Media</span><span><span class="dot" style="background:#C5D3EE"></span>Baja</span></div></div>
+
+      <!-- MAPA INTERACTIVO -->
+      <div class="intel-section">
+        <div class="intel-title">🗺️ MAPA DE CALOR INTERACTIVO — GÁLDAR</div>
+        <div class="leyenda-mapa">
+          <div class="leyenda-item"><div class="leyenda-dot" style="background:#E24B4A"></div>Muy alta</div>
+          <div class="leyenda-item"><div class="leyenda-dot" style="background:#E8650A"></div>Alta</div>
+          <div class="leyenda-item"><div class="leyenda-dot" style="background:#F5C800"></div>Media</div>
+          <div class="leyenda-item"><div class="leyenda-dot" style="background:#4CAF50"></div>Baja</div>
+          <div class="leyenda-item"><div class="leyenda-dot" style="background:#C5D3EE"></div>Sin quejas</div>
+        </div>
+        <div id="mapa-calor"></div>
+        <div class="zona-resumen" id="zona-resumen"></div>
+      </div>
+
+      <!-- TENDENCIA -->
       <div class="intel-section"><div class="intel-title">TENDENCIA MENSUAL</div><div style="position:relative;width:100%;height:180px;"><canvas id="chart-tendencia"></canvas></div></div>
       <div class="intel-section"><div class="intel-title">POR CATEGORIA</div><div style="position:relative;width:100%;" id="chart-cat-wrap"><canvas id="chart-cat"></canvas></div></div>
       <div class="intel-section"><div class="intel-title">VOTO POTENCIAL</div><div id="voto-list"></div></div>
@@ -171,8 +202,33 @@ var historialChat = [];
 var chartTend = null;
 var chartCat = null;
 var quejasConocidas = null;
+var mapaLeaflet = null;
+var marcadores = [];
 var TELEGRAM_TOKEN = "8772067102:AAFNR2Txk6P9XxLZg9GZwunT4v1YcdNLEZY";
 var TELEGRAM_CHAT_ID = "8601457137";
+
+var barriosGaldar = [
+  { nombre: "Puerto de Sardina", zona: "Costa", lat: 28.153, lng: -15.686 },
+  { nombre: "El Agujero", zona: "Costa", lat: 28.148, lng: -15.700 },
+  { nombre: "La Guancha", zona: "Costa", lat: 28.151, lng: -15.673 },
+  { nombre: "Gáldar Casco", zona: "Urbana", lat: 28.144, lng: -15.650 },
+  { nombre: "San Isidro", zona: "Urbana", lat: 28.140, lng: -15.642 },
+  { nombre: "Barrial", zona: "Urbana", lat: 28.142, lng: -15.658 },
+  { nombre: "Marmolejos", zona: "Urbana", lat: 28.138, lng: -15.647 },
+  { nombre: "Los Quintanas - Piso Firme", zona: "Urbana", lat: 28.136, lng: -15.653 },
+  { nombre: "Hoya de Pineda", zona: "Medianías", lat: 28.132, lng: -15.660 },
+  { nombre: "Saucillo", zona: "Medianías", lat: 28.127, lng: -15.668 },
+  { nombre: "Juncalillo", zona: "Medianías", lat: 28.125, lng: -15.680 },
+  { nombre: "Caideros", zona: "Cumbre", lat: 28.158, lng: -15.640 },
+  { nombre: "Fagajesto", zona: "Cumbre", lat: 28.148, lng: -15.628 }
+];
+
+var zonas = {
+  "Costa":     { color: "#0077CC", icono: "🌊" },
+  "Urbana":    { color: "#FF9900", icono: "🏠" },
+  "Medianías": { color: "#33AA33", icono: "🌿" },
+  "Cumbre":    { color: "#663399", icono: "⛰️" }
+};
 
 var firebaseConfig = {
   apiKey: "AIzaSyArK1mSHIHsxObbPxsG8VB7HgFMy2tC-6U",
@@ -219,24 +275,25 @@ function cambiarTab(tab) {
   };
   document.getElementById('header-titulo').textContent = titulos[tab][0];
   document.getElementById('header-sub').textContent = titulos[tab][1];
-  if (tab === 'intel') renderInteligencia();
+  if (tab === 'intel') {
+    renderInteligencia();
+    setTimeout(function() { if (mapaLeaflet) mapaLeaflet.invalidateSize(); }, 300);
+  }
 }
 
-function enviarTelegram(mensaje) {
-  fetch(WORKER_URL, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ telegram: true, token: TELEGRAM_TOKEN, chat_id: TELEGRAM_CHAT_ID, text: mensaje })
-  }).catch(function(e) {});
+function enviarTelegram(msg) {
+  fetch(WORKER_URL, { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ telegram:true, token:TELEGRAM_TOKEN, chat_id:TELEGRAM_CHAT_ID, text:msg })
+  }).catch(function(){});
 }
 
 function cargarQuejas() {
-  db.collection("quejas").orderBy("fecha", "desc").onSnapshot(function(snap) {
-    var nuevas = snap.docs.map(function(d) { return Object.assign({ id: d.id }, d.data()); });
+  db.collection("quejas").orderBy("fecha","desc").onSnapshot(function(snap) {
+    var nuevas = snap.docs.map(function(d) { return Object.assign({id:d.id}, d.data()); });
     if (quejasConocidas !== null) {
       nuevas.forEach(function(q) {
-        var eraConocida = quejasConocidas.some(function(c) { return c.id === q.id; });
-        if (!eraConocida) {
-          enviarTelegram("🔔 Nueva queja en Galdar\n📍 " + (q.barrio||'') + " · " + (q.categoria||'') + "\n👤 " + (q.nombre||'Anonimo') + "\n💬 " + (q.descripcion||'').substring(0,100));
+        if (!quejasConocidas.some(function(c){return c.id===q.id;})) {
+          enviarTelegram("🔔 Nueva queja en Galdar\n📍 "+(q.barrio||'')+" · "+(q.categoria||'')+"\n👤 "+(q.nombre||'Anonimo')+"\n💬 "+(q.descripcion||'').substring(0,100));
         }
       });
     }
@@ -247,10 +304,79 @@ function cargarQuejas() {
 }
 
 function cargarSugerencias() {
-  db.collection("sugerencias").orderBy("fecha", "desc").onSnapshot(function(snap) {
-    sugerenciasCache = snap.docs.map(function(d) { return Object.assign({ id: d.id }, d.data()); });
+  db.collection("sugerencias").orderBy("fecha","desc").onSnapshot(function(snap) {
+    sugerenciasCache = snap.docs.map(function(d) { return Object.assign({id:d.id}, d.data()); });
     renderSugerencias();
   });
+}
+
+// ── MAPA INTERACTIVO
+function iniciarMapa() {
+  if (mapaLeaflet) return;
+  mapaLeaflet = L.map('mapa-calor', { zoomControl: true, scrollWheelZoom: false })
+    .setView([28.138, -15.660], 12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap',
+    maxZoom: 16
+  }).addTo(mapaLeaflet);
+}
+
+function actualizarMapa(porBarrio, maxQ) {
+  iniciarMapa();
+  marcadores.forEach(function(m) { mapaLeaflet.removeLayer(m); });
+  marcadores = [];
+
+  barriosGaldar.forEach(function(b) {
+    var n = porBarrio[b.nombre] || 0;
+    var r = maxQ > 0 ? n / maxQ : 0;
+    var color = n === 0 ? '#C5D3EE' : r > 0.7 ? '#E24B4A' : r > 0.4 ? '#E8650A' : r > 0.1 ? '#F5C800' : '#4CAF50';
+    var radius = n === 0 ? 14 : 14 + Math.round(r * 24);
+    var zona = zonas[b.zona] || { color: '#888', icono: '📍' };
+
+    var circle = L.circleMarker([b.lat, b.lng], {
+      radius: radius,
+      fillColor: color,
+      color: '#fff',
+      weight: 2,
+      opacity: 1,
+      fillOpacity: 0.85
+    }).addTo(mapaLeaflet);
+
+    var popupHTML = '<div class="popup-barrio">' +
+      '<h4>' + zona.icono + ' ' + b.nombre + '</h4>' +
+      '<div class="popup-num">' + n + '</div>' +
+      '<div class="popup-lbl">queja' + (n !== 1 ? 's' : '') + ' registrada' + (n !== 1 ? 's' : '') + '</div>' +
+      '<div style="margin-top:6px;font-size:11px;color:' + zona.color + ';font-weight:600">' + b.zona + '</div>' +
+      '</div>';
+
+    circle.bindPopup(popupHTML);
+
+    // Label
+    var label = L.divIcon({
+      className: '',
+      html: '<div style="background:rgba(255,255,255,0.92);border-radius:8px;padding:2px 6px;font-size:10px;font-weight:700;color:#333;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,0.2)">' + b.nombre.split(' ')[0] + (n > 0 ? ' <span style="color:'+color+'">'+n+'</span>' : '') + '</div>',
+      iconAnchor: [-16, 10]
+    });
+    var labelMarker = L.marker([b.lat, b.lng], { icon: label, interactive: false }).addTo(mapaLeaflet);
+    marcadores.push(circle);
+    marcadores.push(labelMarker);
+  });
+}
+
+function renderZonaResumen(porBarrio) {
+  var porZona = {};
+  barriosGaldar.forEach(function(b) {
+    var z = b.zona;
+    if (!porZona[z]) porZona[z] = 0;
+    porZona[z] += (porBarrio[b.nombre] || 0);
+  });
+  var html = '';
+  Object.keys(zonas).forEach(function(z) {
+    var n = porZona[z] || 0;
+    var info = zonas[z];
+    html += '<div class="zona-chip" style="background:' + info.color + '">' + info.icono + ' ' + z + ': ' + n + '</div>';
+  });
+  document.getElementById('zona-resumen').innerHTML = html;
 }
 
 function renderSugerencias() {
@@ -269,27 +395,22 @@ function renderSugerencias() {
   document.getElementById('sug-barrios').textContent = barrios;
   document.getElementById('sug-hoy').textContent = estaSemana;
   document.getElementById('sug-top').textContent = topBarrio ? topBarrio[0].split(' ')[0] : '-';
-
   var lista = document.getElementById('lista-sugerencias');
-  if (!sugerenciasCache.length) {
-    lista.innerHTML = '<p class="sin-quejas">Aun no hay sugerencias de los vecinos</p>';
-    return;
-  }
+  if (!sugerenciasCache.length) { lista.innerHTML = '<p class="sin-quejas">Aun no hay sugerencias</p>'; return; }
   lista.innerHTML = sugerenciasCache.map(function(s) {
-    var fecha = s.fecha && s.fecha.toDate ? s.fecha.toDate().toLocaleDateString('es-ES', {day:'numeric',month:'short',year:'numeric'}) : (s.fechaTexto||'');
-    var textoEsc = (s.texto||'').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-    var barrioEsc = (s.barrio||'').replace(/'/g, "\\'");
-    var nombreEsc = (s.nombre||'Anonimo').replace(/'/g, "\\'");
+    var fecha = s.fecha&&s.fecha.toDate ? s.fecha.toDate().toLocaleDateString('es-ES',{day:'numeric',month:'short',year:'numeric'}) : (s.fechaTexto||'');
+    var textoEsc = (s.texto||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');
+    var barrioEsc = (s.barrio||'').replace(/'/g,"\\'");
+    var nombreEsc = (s.nombre||'Anonimo').replace(/'/g,"\\'");
     return '<div class="sug-card">' +
-      '<div class="sug-header"><span class="sug-barrio">📍 ' + (s.barrio||'Sin barrio') + '</span><span class="sug-fecha">' + fecha + '</span></div>' +
-      '<div class="sug-texto">' + (s.texto||'') + '</div>' +
-      '<div class="sug-nombre">👤 ' + (s.nombre||'Anonimo') + '</div>' +
+      '<div class="sug-header"><span class="sug-barrio">📍 '+(s.barrio||'Sin barrio')+'</span><span class="sug-fecha">'+fecha+'</span></div>' +
+      '<div class="sug-texto">'+(s.texto||'')+'</div>' +
+      '<div class="sug-nombre">👤 '+(s.nombre||'Anonimo')+'</div>' +
       '<div class="sug-acciones">' +
-        '<button class="btn-sug-accion btn-sug-wa" onclick="responderSugerencia(\'wa\',\'' + barrioEsc + '\',\'' + nombreEsc + '\',\'' + textoEsc + '\')">💬 WhatsApp</button>' +
-        '<button class="btn-sug-accion btn-sug-fb" onclick="responderSugerencia(\'fb\',\'' + barrioEsc + '\',\'' + nombreEsc + '\',\'' + textoEsc + '\')">📘 Facebook</button>' +
-        '<button class="btn-sug-accion btn-sug-pleno" onclick="responderSugerencia(\'pleno\',\'' + barrioEsc + '\',\'' + nombreEsc + '\',\'' + textoEsc + '\')">📋 Pleno</button>' +
-      '</div>' +
-      '</div>';
+        '<button class="btn-sug-accion btn-sug-wa" onclick="responderSugerencia(\'wa\',\''+barrioEsc+'\',\''+nombreEsc+'\',\''+textoEsc+'\')">💬 WhatsApp</button>' +
+        '<button class="btn-sug-accion btn-sug-fb" onclick="responderSugerencia(\'fb\',\''+barrioEsc+'\',\''+nombreEsc+'\',\''+textoEsc+'\')">📘 Facebook</button>' +
+        '<button class="btn-sug-accion btn-sug-pleno" onclick="responderSugerencia(\'pleno\',\''+barrioEsc+'\',\''+nombreEsc+'\',\''+textoEsc+'\')">📋 Pleno</button>' +
+      '</div></div>';
   }).join('');
 }
 
@@ -299,19 +420,16 @@ function responderSugerencia(tipo, barrio, nombre, texto) {
   var contenido = document.getElementById('modal-sug-texto');
   modal.classList.remove('hidden');
   contenido.textContent = 'Generando con IA...';
-
   var prompts = {
-    wa: 'Redacta un mensaje de WhatsApp de Jose Blas Diaz Bolanos (concejal UxGC Galdar) para agradecer y responder a un vecino llamado ' + nombre + ' del barrio ' + barrio + ' que ha enviado esta sugerencia: "' + texto + '". Tono cercano, personal, agradecido. Maximo 4 frases. Solo el texto del mensaje.',
-    fb: 'Redacta un post de Facebook de Jose Blas Diaz Bolanos (concejal UxGC Galdar) compartiendo publicamente esta sugerencia de un vecino de ' + barrio + ': "' + texto + '". Destaca que escucha a los vecinos, tono propositivo y cercano, 3-4 frases, incluye #Galdar #UnidosPorGranCanaria. Solo el texto.',
-    pleno: 'Redacta una propuesta formal para llevar al pleno municipal de Galdar basada en esta sugerencia vecinal del barrio ' + barrio + ': "' + texto + '". Formato: titulo de la propuesta, argumentacion en 2-3 puntos, solicitud concreta al ayuntamiento. Tono formal pero directo.'
+    wa: 'Redacta un mensaje de WhatsApp de Jose Blas Diaz Bolanos (concejal UxGC Galdar) para agradecer y responder a un vecino llamado '+nombre+' del barrio '+barrio+' que ha enviado esta sugerencia: "'+texto+'". Tono cercano, personal, agradecido. Maximo 4 frases. Solo el texto.',
+    fb: 'Redacta un post de Facebook de Jose Blas Diaz Bolanos (concejal UxGC Galdar) compartiendo publicamente esta sugerencia de un vecino de '+barrio+': "'+texto+'". Destaca que escucha a los vecinos, tono propositivo, 3-4 frases, #Galdar #UnidosPorGranCanaria. Solo el texto.',
+    pleno: 'Redacta una propuesta formal para el pleno municipal de Galdar basada en esta sugerencia del barrio '+barrio+': "'+texto+'". Formato: titulo, argumentacion 2-3 puntos, solicitud concreta. Tono formal.'
   };
-
-  var labels = { wa: 'WHATSAPP — RESPUESTA AL VECINO', fb: 'POST FACEBOOK — SUGERENCIA PUBLICA', pleno: 'PROPUESTA PARA EL PLENO' };
+  var labels = { wa:'WHATSAPP — RESPUESTA AL VECINO', fb:'POST FACEBOOK — SUGERENCIA PUBLICA', pleno:'PROPUESTA PARA EL PLENO' };
   label.textContent = labels[tipo];
-
-  llamarIA([{ role: 'user', content: prompts[tipo] }], null, 500)
+  llamarIA([{role:'user',content:prompts[tipo]}], null, 500)
     .then(function(txt) { contenido.textContent = txt; })
-    .catch(function() { contenido.textContent = 'Error al generar. Intentalo de nuevo.'; });
+    .catch(function() { contenido.textContent = 'Error al generar.'; });
 }
 
 function copiarModalSug() {
@@ -321,72 +439,70 @@ function copiarModalSug() {
 
 function renderQuejas() {
   document.getElementById('st-total').textContent = quejasCache.length;
-  document.getElementById('st-nuevas').textContent = quejasCache.filter(function(q) { return q.estado === 'nueva'; }).length;
-  document.getElementById('st-pleno').textContent = quejasCache.filter(function(q) { return q.estado === 'pleno'; }).length;
-  document.getElementById('st-resueltas').textContent = quejasCache.filter(function(q) { return q.estado === 'resuelta'; }).length;
-  var filtradas = filtroActual === 'todas' ? quejasCache : quejasCache.filter(function(q) { return q.estado === filtroActual; });
+  document.getElementById('st-nuevas').textContent = quejasCache.filter(function(q){return q.estado==='nueva';}).length;
+  document.getElementById('st-pleno').textContent = quejasCache.filter(function(q){return q.estado==='pleno';}).length;
+  document.getElementById('st-resueltas').textContent = quejasCache.filter(function(q){return q.estado==='resuelta';}).length;
+  var filtradas = filtroActual==='todas' ? quejasCache : quejasCache.filter(function(q){return q.estado===filtroActual;});
   var lista = document.getElementById('lista-quejas');
-  if (!filtradas.length) { lista.innerHTML = '<p class="sin-quejas">No hay quejas en esta categoria</p>'; return; }
+  if (!filtradas.length) { lista.innerHTML='<p class="sin-quejas">No hay quejas en esta categoria</p>'; return; }
   lista.innerHTML = filtradas.map(function(q) {
-    var fecha = q.fecha && q.fecha.toDate ? q.fecha.toDate().toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) : (q.fechaTexto || '');
-    var desc = (q.descripcion || '').replace(/"/g, "'");
+    var fecha = q.fecha&&q.fecha.toDate ? q.fecha.toDate().toLocaleDateString('es-ES',{day:'numeric',month:'short',year:'numeric'}) : (q.fechaTexto||'');
+    var desc = (q.descripcion||'').replace(/"/g,"'");
     return '<div class="queja-card">' +
-      '<div class="queja-header"><span class="queja-cat">' + (q.categoria||'') + '</span><span class="queja-fecha">' + fecha + '</span></div>' +
-      '<div class="queja-barrio">' + (q.barrio||'') + '</div>' +
-      '<div class="queja-texto">' + (q.descripcion||'') + '</div>' +
-      '<div class="queja-nombre">' + (q.nombre||'Anonimo') + '</div>' +
-      (q.foto ? '<img src="' + q.foto + '" class="queja-foto" alt="Foto">' : '') +
-      '<span class="queja-estado estado-' + q.estado + '">' + (q.estado==='nueva'?'Nueva':q.estado==='pleno'?'Para pleno':'Resuelta') + '</span>' +
-      (q.estado==='nueva' ? '<button class="btn-accion" onclick="generarPost(\''+q.id+'\',\''+q.barrio+'\',\''+q.categoria+'\',\''+desc+'\')">Post Facebook</button><button class="btn-accion verde" onclick="cambiarEstado(\''+q.id+'\',\'pleno\')">Para pleno</button>' : '') +
-      (q.estado==='pleno' ? '<button class="btn-accion" onclick="generarPost(\''+q.id+'\',\''+q.barrio+'\',\''+q.categoria+'\',\''+desc+'\')">Post Facebook</button><button class="btn-accion verde" onclick="cambiarEstado(\''+q.id+'\',\'resuelta\')">Resuelta</button>' : '') +
+      '<div class="queja-header"><span class="queja-cat">'+(q.categoria||'')+'</span><span class="queja-fecha">'+fecha+'</span></div>' +
+      '<div class="queja-barrio">'+(q.barrio||'')+'</div>' +
+      '<div class="queja-texto">'+(q.descripcion||'')+'</div>' +
+      '<div class="queja-nombre">'+(q.nombre||'Anonimo')+'</div>' +
+      (q.foto?'<img src="'+q.foto+'" class="queja-foto" alt="Foto">':'') +
+      '<span class="queja-estado estado-'+q.estado+'">'+(q.estado==='nueva'?'Nueva':q.estado==='pleno'?'Para pleno':'Resuelta')+'</span>' +
+      (q.estado==='nueva'?'<button class="btn-accion" onclick="generarPost(\''+q.id+'\',\''+q.barrio+'\',\''+q.categoria+'\',\''+desc+'\')">Post Facebook</button><button class="btn-accion verde" onclick="cambiarEstado(\''+q.id+'\',\'pleno\')">Para pleno</button>':'') +
+      (q.estado==='pleno'?'<button class="btn-accion" onclick="generarPost(\''+q.id+'\',\''+q.barrio+'\',\''+q.categoria+'\',\''+desc+'\')">Post Facebook</button><button class="btn-accion verde" onclick="cambiarEstado(\''+q.id+'\',\'resuelta\')">Resuelta</button>':'') +
       '</div>';
   }).join('');
 }
 
-function filtrar(estado, btn) {
-  filtroActual = estado;
-  document.querySelectorAll('.filtro').forEach(function(f) { f.classList.remove('active'); });
+function filtrar(estado,btn) {
+  filtroActual=estado;
+  document.querySelectorAll('.filtro').forEach(function(f){f.classList.remove('active');});
   btn.classList.add('active');
   renderQuejas();
 }
 
-function cambiarEstado(id, estado) {
-  db.collection("quejas").doc(id).update({ estado: estado });
+function cambiarEstado(id,estado) { db.collection("quejas").doc(id).update({estado:estado}); }
+
+function llamarIA(messages,system,maxTokens) {
+  var body={model:'claude-sonnet-4-20250514',max_tokens:maxTokens||600,messages:messages};
+  if(system)body.system=system;
+  return fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+    .then(function(r){return r.json();})
+    .then(function(d){return d.content[0].text;});
 }
 
-function llamarIA(messages, system, maxTokens) {
-  var body = { model: 'claude-sonnet-4-20250514', max_tokens: maxTokens || 600, messages: messages };
-  if (system) body.system = system;
-  return fetch(WORKER_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
-    .then(function(r) { return r.json(); })
-    .then(function(d) { return d.content[0].text; });
-}
-
-function generarPost(id, barrio, categoria, descripcion) {
-  document.getElementById('modal-post-texto').textContent = 'Generando post con IA...';
+function generarPost(id,barrio,categoria,descripcion) {
+  document.getElementById('modal-post-texto').textContent='Generando...';
   document.getElementById('modal-post').classList.remove('hidden');
-  llamarIA([{ role: 'user', content: 'Post Facebook para Jose Blas, concejal UxGC Galdar. Queja: ' + barrio + ', ' + categoria + ': "' + descripcion + '". Tono cercano, 3-4 frases, #Galdar #UnidosPorGranCanaria. Solo el texto.' }], null, 400)
-    .then(function(texto) { document.getElementById('modal-post-texto').textContent = texto; })
-    .catch(function() { document.getElementById('modal-post-texto').textContent = 'Error al generar.'; });
+  llamarIA([{role:'user',content:'Post Facebook para Jose Blas, concejal UxGC Galdar. Queja: '+barrio+', '+categoria+': "'+descripcion+'". Tono cercano, 3-4 frases, #Galdar #UnidosPorGranCanaria. Solo el texto.'}],null,400)
+    .then(function(texto){document.getElementById('modal-post-texto').textContent=texto;})
+    .catch(function(){document.getElementById('modal-post-texto').textContent='Error.';});
 }
 
 function copiarPostModal() {
   navigator.clipboard.writeText(document.getElementById('modal-post-texto').textContent)
-    .then(function() { alert('Copiado!'); document.getElementById('modal-post').classList.add('hidden'); });
+    .then(function(){alert('Copiado!');document.getElementById('modal-post').classList.add('hidden');});
 }
 
 function renderInteligencia() {
-  var total = quejasCache.length;
-  var porBarrio={}, porCat={}, porMes={}, sondeo={si:0,talvez:0,no:0};
-  quejasCache.forEach(function(q) {
-    if(q.barrio) porBarrio[q.barrio]=(porBarrio[q.barrio]||0)+1;
-    if(q.categoria) porCat[q.categoria]=(porCat[q.categoria]||0)+1;
+  var total=quejasCache.length;
+  var porBarrio={},porCat={},porMes={},sondeo={si:0,talvez:0,no:0};
+  quejasCache.forEach(function(q){
+    if(q.barrio)porBarrio[q.barrio]=(porBarrio[q.barrio]||0)+1;
+    if(q.categoria)porCat[q.categoria]=(porCat[q.categoria]||0)+1;
     if(q.fecha&&q.fecha.toDate){var m=q.fecha.toDate().toLocaleDateString('es-ES',{month:'short',year:'numeric'});porMes[m]=(porMes[m]||0)+1;}
     if(q.sondeo==='si')sondeo.si++;else if(q.sondeo==='talvez')sondeo.talvez++;else if(q.sondeo==='no')sondeo.no++;
   });
   var barriosOrden=Object.entries(porBarrio).sort(function(a,b){return b[1]-a[1];});
   var maxQ=barriosOrden.length?barriosOrden[0][1]:1;
-  var barrios=barriosOrden.length;
+  var barrios=Object.keys(porBarrio).length;
   var votoPot=total>0?Math.min(Math.round(total*2.8+barrios*3),65):0;
   var totalSondeo=sondeo.si+sondeo.talvez+sondeo.no;
   var pctSi=totalSondeo>0?Math.round(sondeo.si/totalSondeo*100):0;
@@ -394,26 +510,37 @@ function renderInteligencia() {
   document.getElementById('intel-barrios').textContent=barrios;
   document.getElementById('intel-voto').textContent=total>0?votoPot+'%':'-';
   document.getElementById('intel-sondeo').textContent=totalSondeo>0?pctSi+'%':'-';
-  var calor=document.getElementById('calor-list');calor.innerHTML='';
-  if(!barriosOrden.length){calor.innerHTML='<p class="sin-quejas">Sin datos aun</p>';}
-  else{barriosOrden.forEach(function(e){var b=e[0],n=e[1];var r=n/maxQ;var c=r>0.7?'#E24B4A':r>0.4?'#E8650A':r>0.2?'#F5C800':'#C5D3EE';calor.innerHTML+='<div class="calor-row"><span class="calor-name">'+b+'</span><div class="calor-bar-wrap"><div class="calor-bar" style="width:'+Math.round(r*100)+'%;background:'+c+'"></div></div><span class="calor-num" style="color:'+c+'">'+n+'</span></div>';});}
+
+  // MAPA
+  actualizarMapa(porBarrio, maxQ);
+  renderZonaResumen(porBarrio);
+
+  // TENDENCIA
   var meses=Object.keys(porMes),valsMes=Object.values(porMes);
   if(chartTend)chartTend.destroy();
   var ctxT=document.getElementById('chart-tendencia');
   if(meses.length){chartTend=new Chart(ctxT,{type:'line',data:{labels:meses,datasets:[{data:valsMes,borderColor:'#1A3A6B',backgroundColor:'rgba(26,58,107,0.08)',borderWidth:2,pointBackgroundColor:'#1A3A6B',pointRadius:5,tension:0.3,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:11},color:'#888'},grid:{display:false}},y:{ticks:{font:{size:11},color:'#888',stepSize:1},beginAtZero:true}}}});}
   else{ctxT.parentElement.innerHTML='<p class="sin-quejas">Sin datos</p>';}
+
+  // CATEGORIAS
   var catL=Object.keys(porCat).sort(function(a,b){return porCat[b]-porCat[a];}),catV=catL.map(function(c){return porCat[c];});
   var catColors=['#E24B4A','#E8650A','#F5C800','#1A3A6B','#3B6D11','#C5D3EE','#888'];
   var catWrap=document.getElementById('chart-cat-wrap');catWrap.style.height=Math.max(catL.length*36+40,100)+'px';
   if(chartCat)chartCat.destroy();
   if(catL.length){chartCat=new Chart(document.getElementById('chart-cat'),{type:'bar',data:{labels:catL,datasets:[{data:catV,backgroundColor:catColors.slice(0,catL.length)}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:11},color:'#888'},beginAtZero:true},y:{ticks:{font:{size:11},color:'#888'},grid:{display:false}}}}});}
   else{catWrap.innerHTML='<p class="sin-quejas">Sin datos</p>';}
+
+  // VOTO POTENCIAL
   var votoList=document.getElementById('voto-list');votoList.innerHTML='';
   if(!barriosOrden.length){votoList.innerHTML='<p class="sin-quejas">Sin datos</p>';}
   else{barriosOrden.forEach(function(e){var b=e[0],n=e[1];var pot=Math.min(Math.round(n/maxQ*75+15),85);var niv=pot>=55?'alto':pot>=35?'medio':'bajo';var bc=niv==='alto'?'badge-alto':niv==='medio'?'badge-medio':'badge-bajo';var bt=niv==='alto'?'Potencial alto':niv==='medio'?'Potencial medio':'Potencial bajo';var col=niv==='alto'?'#3B6D11':niv==='medio'?'#E8650A':'#C5D3EE';votoList.innerHTML+='<div class="voto-card"><div class="voto-header"><span class="voto-barrio">'+b+'</span><span class="voto-badge '+bc+'">'+bt+'</span></div><div class="voto-bar-wrap"><div class="voto-bar" style="width:'+pot+'%;background:'+col+'"></div></div><div class="voto-footer"><span>'+n+' quejas</span><span style="font-weight:500;color:'+col+'">'+pot+'% est.</span></div></div>';});}
+
+  // SONDEO
   var so=document.getElementById('sondeo-opts');so.innerHTML='';
   if(totalSondeo>0){[{l:'Si, buena iniciativa',v:sondeo.si,c:'#3B6D11'},{l:'Esperare resultados',v:sondeo.talvez,c:'#E8650A'},{l:'Prefiero otro canal',v:sondeo.no,c:'#C5D3EE'}].forEach(function(o){var p=Math.round(o.v/totalSondeo*100);so.innerHTML+='<div class="sondeo-opt"><span class="sondeo-label">'+o.l+'</span><div class="sondeo-bar-wrap"><div class="sondeo-bar" style="width:'+p+'%;background:'+o.c+'"></div></div><span class="sondeo-pct">'+p+'%</span></div>';});document.getElementById('sondeo-total').textContent='Total: '+totalSondeo+' respuestas';}
   else{so.innerHTML='<p class="sin-quejas">Sin respuestas aun</p>';}
+
+  // INSIGHTS
   var il=document.getElementById('insights-list');il.innerHTML='';
   if(!total){il.innerHTML='<p class="sin-quejas">Los analisis apareceran con las primeras quejas</p>';return;}
   var topB=barriosOrden[0];var topCArr=Object.entries(porCat).sort(function(a,b){return b[1]-a[1];});var topC=topCArr[0];
@@ -429,21 +556,17 @@ function generarAnalisisCompleto() {
   var topB=Object.entries(porBarrio).sort(function(a,b){return b[1]-a[1];})[0];
   var topC=Object.entries(porCat).sort(function(a,b){return b[1]-a[1];})[0];
   var sugResumen=sugerenciasCache.slice(0,5).map(function(s){return s.barrio+': '+s.texto.substring(0,50);}).join(' | ');
-  llamarIA([{role:'user',content:'Eres asesor politico. Analiza datos de Jose Blas Diaz Bolanos (concejal UxGC, oposicion en Galdar): Total quejas: '+total+', Barrio top: '+(topB?topB[0]+' ('+topB[1]+')':'sin datos')+', Categoria top: '+(topC?topC[0]+' ('+topC[1]+')':'sin datos')+', Barrios: '+Object.keys(porBarrio).join(', ')+'. Sugerencias vecinos: '+(sugResumen||'sin datos')+'. Dame 4-5 recomendaciones estrategicas para 2027. Responde directo en espanol.'}],null,600)
+  llamarIA([{role:'user',content:'Eres asesor politico. Analiza datos de Jose Blas Diaz Bolanos (concejal UxGC, oposicion en Galdar): Total quejas: '+total+', Barrio top: '+(topB?topB[0]+' ('+topB[1]+')':'sin datos')+', Categoria top: '+(topC?topC[0]+' ('+topC[1]+')':'sin datos')+', Barrios: '+Object.keys(porBarrio).join(', ')+'. Sugerencias: '+(sugResumen||'sin datos')+'. Dame 4-5 recomendaciones estrategicas para 2027. Responde directo en espanol.'}],null,600)
     .then(function(texto){res.innerHTML=texto.split('\n').join('<br>');})
     .catch(function(){res.textContent='Error al conectar.';});
   btn.textContent='+';
 }
 
-function preguntaRapida(texto) {
-  document.getElementById('asesor-input').value=texto;
-  enviarAsesor();
-}
+function preguntaRapida(texto){document.getElementById('asesor-input').value=texto;enviarAsesor();}
 
 function enviarAsesor() {
   var input=document.getElementById('asesor-input');
-  var texto=input.value.trim();
-  if(!texto)return;
+  var texto=input.value.trim();if(!texto)return;
   input.value='';
   var chat=document.getElementById('asesor-chat');
   var sendBtn=document.getElementById('asesor-send');
@@ -465,8 +588,7 @@ function enviarAsesor() {
       historialChat.push({role:'assistant',content:respuesta});
       var loadEl=document.getElementById(loadId);
       if(loadEl)loadEl.outerHTML='<div class="msg-ia"><div class="msg-avatar">IA</div><div class="msg-bubble-ia">'+respuesta.split('\n').join('<br>')+'</div></div>';
-      chat.scrollTop=chat.scrollHeight;
-      sendBtn.disabled=false;
+      chat.scrollTop=chat.scrollHeight;sendBtn.disabled=false;
     })
     .catch(function(){
       var loadEl=document.getElementById(loadId);
