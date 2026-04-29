@@ -211,71 +211,98 @@ var TELEGRAM_CHAT_ID = "8601457137";
 
 var barriosData = {
   "Galdar Casco": {
-    prioridad: 3,
+    prioridad: 3, zona: "Urbana",
     categorias: ["Aceras","Trafico","Residuos","Ruido","Alumbrado"],
-    problemas: ["Aceras estrechas o rotas","Contenedores llenos","Ruidos nocturnos","Falta de aparcamiento","Senalizacion borrada"]
+    problemas: ["Aceras estrechas o rotas","Contenedores llenos","Ruidos nocturnos","Falta de aparcamiento","Senalizacion borrada"],
+    alertas: ["Quejas por accesibilidad (sillas de ruedas)","Atascos en calles de un solo sentido","Olores en alcantarillado en dias de calor"]
   },
   "San Isidro": {
-    prioridad: 3,
+    prioridad: 3, zona: "Urbana",
     categorias: ["Aceras","Alumbrado","Residuos","Parques","Trafico"],
-    problemas: ["Aceras sin rematar","Poca iluminacion en calles nuevas","Contenedores insuficientes","Parques deteriorados","Trafico en rotondas"]
+    problemas: ["Aceras sin rematar en calles nuevas","Contenedores insuficientes","Parques infantiles deteriorados","Trafico en rotonda principal"],
+    alertas: ["Falta de iluminacion en calles nuevas","Problemas de presion de agua en viviendas altas"]
   },
   "Barrial": {
-    prioridad: 2,
+    prioridad: 2, zona: "Urbana",
     categorias: ["Asfalto","Residuos","Alumbrado","Ruido","Parques"],
-    problemas: ["Baches en calles","Contenedores saturados","Alumbrado irregular","Ruidos en zonas deportivas","Necesidad de poda"]
+    problemas: ["Calles con baches por trafico intenso","Contenedores saturados","Alumbrado irregular"],
+    alertas: ["Quejas por ruidos en zonas de ocio y canchas","Necesidad de poda en arboles"]
   },
   "Marmolejos": {
-    prioridad: 2,
+    prioridad: 2, zona: "Urbana",
     categorias: ["Aceras","Alumbrado","Parques","Olores","Trafico"],
-    problemas: ["Aceras sin accesibilidad","Farolas antiguas","Parques con desgaste","Olores en alcantarillado","Velocidad excesiva"]
+    problemas: ["Aceras sin rebajes","Alumbrado antiguo","Contenedores mal ubicados"],
+    alertas: ["Velocidad excesiva en calles rectas","Olores en alcantarillado tras lluvias"]
   },
   "Los Quintanas - Piso Firme": {
-    prioridad: 2,
+    prioridad: 2, zona: "Urbana",
     categorias: ["Asfalto","Alumbrado","Seguridad","Parques"],
-    problemas: ["Calles con desgaste","Falta de pasos de peatones","Puntos de luz insuficientes","Inseguridad nocturna"]
+    problemas: ["Calles con desgaste","Falta de pasos de peatones","Puntos de luz insuficientes"],
+    alertas: ["Inseguridad nocturna","Necesidad de poda urgente"]
   },
   "Puerto de Sardina": {
-    prioridad: 3,
+    prioridad: 3, zona: "Costa",
     categorias: ["Alumbrado","Playas","Residuos","Aparcamiento","Olores"],
-    problemas: ["Corrosion por salitre","Limpieza de playa","Aparcamiento saturado","Olores en bombeos","Barandillas deterioradas"]
+    problemas: ["Corrosion por salitre en farolas","Limpieza de playa","Aparcamiento saturado en verano"],
+    alertas: ["Vertidos o manchas en el agua","Desprendimientos en muros costeros","Caida de presion de agua"]
   },
   "El Agujero": {
-    prioridad: 3,
+    prioridad: 3, zona: "Costa",
     categorias: ["Playas","Alumbrado","Residuos","Seguridad"],
-    problemas: ["Desgaste del paseo","Farolas corroidas","Basura en zonas rocosas","Oleaje peligroso sin senalizar"]
+    problemas: ["Desgaste del paseo","Farolas corroidas","Basura en zonas rocosas"],
+    alertas: ["Oleaje peligroso sin senalizar","Vertidos en zonas rocosas"]
   },
   "La Guancha": {
-    prioridad: 2,
+    prioridad: 2, zona: "Costa",
     categorias: ["Alumbrado","Asfalto","Residuos"],
-    problemas: ["Iluminacion insuficiente","Pavimento deteriorado","Contenedores mal ubicados"]
+    problemas: ["Iluminacion insuficiente","Pavimento deteriorado","Contenedores mal ubicados"],
+    alertas: ["Desprendimientos en temporales","Presion de agua baja"]
   },
   "Hoya de Pineda": {
-    prioridad: 2,
+    prioridad: 2, zona: "Medianias",
     categorias: ["Carreteras","Alumbrado","Transporte","Agua"],
-    problemas: ["Desprendimientos","Calles poco iluminadas","Transporte limitado","Baja presion de agua"]
+    problemas: ["Desprendimientos en taludes","Caminos rurales deteriorados","Transporte publico limitado"],
+    alertas: ["Cortes de luz en temporales","Necesidad de limpieza de cunetas"]
   },
   "Saucillo": {
-    prioridad: 2,
+    prioridad: 2, zona: "Medianias",
     categorias: ["Carreteras","Alumbrado","Residuos","Agua"],
-    problemas: ["Caminos rurales deteriorados","Alumbrado escaso","Contenedores alejados","Cortes de agua"]
+    problemas: ["Caminos rurales deteriorados","Alumbrado escaso","Contenedores alejados","Cortes de agua"],
+    alertas: ["Cortes de luz en temporales","Cunetas obstruidas"]
   },
   "Juncalillo": {
-    prioridad: 2,
+    prioridad: 2, zona: "Medianias",
     categorias: ["Carreteras","Transporte","Alumbrado"],
-    problemas: ["Taludes inestables","Pocas conexiones de guagua","Iluminacion debil"]
+    problemas: ["Taludes inestables","Pocas conexiones de guagua","Iluminacion debil"],
+    alertas: ["Desprendimientos tras lluvias","Aislamiento en temporales"]
   },
   "Caideros": {
-    prioridad: 1,
+    prioridad: 1, zona: "Cumbre",
     categorias: ["Carreteras","Electricidad","Agua","Cobertura"],
-    problemas: ["Carreteras estrechas","Caidas de luz","Problemas de abastecimiento","Zonas sin cobertura movil"]
+    problemas: ["Carreteras estrechas y peligrosas","Caidas de luz frecuentes","Problemas de abastecimiento de agua"],
+    alertas: ["Zonas sin cobertura movil","Accesos intransitables en temporales","Aislamiento en temporales"]
   },
   "Fagajesto": {
-    prioridad: 1,
+    prioridad: 1, zona: "Cumbre",
     categorias: ["Carreteras","Electricidad","Agua"],
-    problemas: ["Accesos complicados","Lineas electricas vulnerables","Falta de presion de agua"]
+    problemas: ["Accesos complicados","Lineas electricas vulnerables","Falta de presion de agua"],
+    alertas: ["Pistas agricolas deterioradas","Aislamiento en temporales","Cortes de suministro"]
   }
 };
+
+// Problemas transversales de todo Galdar
+var problemasTransversales = [
+  "Contenedores insuficientes o mal ubicados",
+  "Alumbrado antiguo o con fallos",
+  "Aceras sin accesibilidad",
+  "Baches y desgaste del asfalto",
+  "Parques infantiles con mantenimiento irregular",
+  "Senalizacion horizontal borrada",
+  "Ruidos nocturnos",
+  "Falta de poda o arboles peligrosos",
+  "Olores en alcantarillado",
+  "Falta de aparcamiento en zonas densas"
+];
 
 var barriosGaldar = [
   { nombre: "Puerto de Sardina", zona: "Costa", lat: 28.153, lng: -15.686 },
@@ -418,6 +445,7 @@ function actualizarMapa(porBarrio, maxQ) {
     var prioridadColor = bData ? (bData.prioridad===3?'#E24B4A':bData.prioridad===2?'#E8650A':'#888') : '#888';
     var prioridadTexto = bData ? (bData.prioridad===3?'PRIORIDAD ALTA':bData.prioridad===2?'PRIORIDAD MEDIA':'PRIORIDAD BAJA') : '';
     var categoriasHTML = bData ? bData.categorias.map(function(c){return '<span style="display:inline-block;background:#1A3A6B20;color:#1A3A6B;border-radius:10px;padding:2px 7px;font-size:10px;margin:2px;font-weight:600">'+c+'</span>';}).join('') : '';
+    var alertasHTML = bData && bData.alertas ? bData.alertas.map(function(a){return '<div style="font-size:10px;color:#E8650A;padding:2px 0">⚠ '+a+'</div>';}).join('') : '';
     var problemasHTML = bData ? bData.problemas.map(function(p){return '<div style="font-size:10px;color:#555;padding:2px 0">• '+p+'</div>';}).join('') : '';
 
     var popupHTML = '<div class="popup-barrio" style="min-width:200px">' +
@@ -428,6 +456,7 @@ function actualizarMapa(porBarrio, maxQ) {
       '</div>' +
       (categoriasHTML ? '<div style="margin-bottom:6px"><div style="font-size:10px;font-weight:700;color:#888;margin-bottom:4px">CATEGORIAS FRECUENTES</div>' + categoriasHTML + '</div>' : '') +
       (problemasHTML ? '<div style="border-top:1px solid #eee;padding-top:6px"><div style="font-size:10px;font-weight:700;color:#888;margin-bottom:4px">PROBLEMAS TIPICOS</div>' + problemasHTML + '</div>' : '') +
+      (alertasHTML ? '<div style="border-top:1px solid #eee;padding-top:6px;margin-top:4px"><div style="font-size:10px;font-weight:700;color:#E8650A;margin-bottom:4px">⚠ SENALES DE ALERTA</div>' + alertasHTML + '</div>' : '') +
       '</div>';
 
     circle.bindPopup(popupHTML);
@@ -661,7 +690,12 @@ function enviarAsesor() {
   var topB=Object.entries(porBarrio).sort(function(a,b){return b[1]-a[1];})[0];
   var topC=Object.entries(porCat).sort(function(a,b){return b[1]-a[1];})[0];
   var sugTextos=sugerenciasCache.slice(0,5).map(function(s){return s.barrio+': '+s.texto.substring(0,60);}).join(' | ');
-  var system='Eres el asesor politico personal de Jose Blas Diaz Bolanos, concejal de Unidos por Gran Canaria en Galdar. El alcalde lleva desde 2007. Objetivo: crecer de 1 a 3-4 concejales en 2027. Datos app: '+total+' quejas, barrio top: '+(topB?topB[0]:'sin datos')+', categoria top: '+(topC?topC[0]:'sin datos')+'. Sugerencias vecinos: '+(sugTextos||'sin datos')+'. Responde siempre en espanol, directo y practico.';
+  var system='Eres el asesor politico personal de Jose Blas Diaz Bolanos, concejal de Unidos por Gran Canaria (UxGC) en Galdar, Gran Canaria. El alcalde del PP lleva desde 2007 con mayoria absoluta. Jose Blas es el unico concejal de UxGC. Objetivo: crecer de 1 a 3-4 concejales en 2027.'+
+'CONOCIMIENTO DE GALDAR: Municipio historico del norte de Gran Canaria, 24.000 hab., 61 km2. Barrios: Costa (Puerto de Sardina, El Agujero, La Guancha), Urbana (Galdar Casco, San Isidro, Barrial, Marmolejos, Los Quintanas), Medianias (Hoya de Pineda, Saucillo, Juncalillo), Cumbre (Caideros, Fagajesto).'+
+'PROBLEMAS TRANSVERSALES: contenedores, alumbrado, aceras, baches, parques, senalizacion, ruidos, poda, olores, aparcamiento.'+
+'ZONAS PRIORITARIAS: Costa y Casco (prioridad alta). Cumbre (mas aislada, problemas de suministros y accesos).'+
+'DATOS APP EN TIEMPO REAL: '+total+' quejas registradas, barrio top: '+(topB?topB[0]:'sin datos')+', categoria top: '+(topC?topC[0]:'sin datos')+'. Sugerencias vecinos: '+(sugTextos||'sin datos')+'.'+
+'Responde siempre en espanol, directo y practico. Usa los datos reales de la app para dar argumentos concretos.';
   historialChat.push({role:'user',content:texto});
   if(historialChat.length>10)historialChat=historialChat.slice(-10);
   llamarIA(historialChat,system,800)
