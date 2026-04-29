@@ -4,715 +4,392 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#1A3A6B">
-  <title>Panel Concejal · Gáldar</title>
+  <title>Quejas Vecinales · Gáldar</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="logo.png">
   <link rel="apple-touch-icon" href="logo.png">
   <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <style>
-    /* SUGERENCIAS */
-    .sug-card{background:#fff;border-radius:12px;padding:14px;margin-bottom:12px;border-left:4px solid #3B6D11;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
-    .sug-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
-    .sug-barrio{font-size:12px;font-weight:700;color:#3B6D11;background:#3B6D1115;padding:3px 8px;border-radius:20px;}
-    .sug-fecha{font-size:11px;color:#aaa;}
-    .sug-texto{font-size:13px;color:#333;margin-bottom:6px;line-height:1.5;}
-    .sug-nombre{font-size:11px;color:#888;margin-bottom:10px;}
-    .sug-acciones{display:flex;gap:6px;flex-wrap:wrap;}
-    .btn-sug-accion{border:none;border-radius:20px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;}
-    .btn-sug-wa{background:#25D36620;color:#128C7E;}
-    .btn-sug-fb{background:#1877F220;color:#1877F2;}
-    .btn-sug-pleno{background:#1A3A6B20;color:#1A3A6B;}
-    .sug-stat .stat-num{color:#3B6D11;}
-    .modal-sug-box{background:#fff;border-radius:16px;padding:24px;margin:20px;max-width:500px;position:relative;}
-    .modal-sug-label{font-size:11px;font-weight:700;letter-spacing:1px;color:#888;margin-bottom:8px;}
-    .modal-sug-texto{font-size:14px;color:#222;line-height:1.6;margin-bottom:16px;white-space:pre-wrap;}
-    .modal-sug-btns{display:flex;gap:8px;}
-
-    /* MAPA */
-    #mapa-calor{width:100%;height:320px;border-radius:12px;overflow:hidden;margin-bottom:12px;border:1px solid #E8EDF5;}
-    .leaflet-popup-content-wrapper{border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,0.15);}
-    .popup-barrio{font-size:13px;}
-    .popup-barrio h4{margin:0 0 6px;font-size:14px;color:#1A3A6B;}
-    .popup-barrio .popup-num{font-size:28px;font-weight:700;color:#E24B4A;}
-    .popup-barrio .popup-lbl{font-size:11px;color:#888;}
-    .leyenda-mapa{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;font-size:12px;}
-    .leyenda-item{display:flex;align-items:center;gap:5px;}
-    .leyenda-dot{width:12px;height:12px;border-radius:50%;}
-    .zona-resumen{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
-    .zona-chip{border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;color:#fff;}
+    .zona-grupo{margin-bottom:12px;}
+    .zona-label{font-size:11px;font-weight:700;letter-spacing:0.5px;margin-bottom:6px;text-transform:uppercase;}
+    .zona-chips{display:flex;flex-wrap:wrap;gap:6px;}
+    .barrio-btn{border:1.5px solid #ddd;background:#fff;border-radius:20px;padding:7px 13px;font-size:12px;cursor:pointer;color:#555;font-family:inherit;}
+    .sep{margin:28px 0 0;border:none;border-top:2px dashed #C5D3EE;}
+    .sug-banner{margin-top:18px;background:linear-gradient(135deg,#1A3A6B08,#3B6D1112);border:1.5px solid #3B6D11;border-radius:14px;padding:18px 16px;text-align:center;}
+    .sug-titulo{font-size:16px;font-weight:bold;color:#3B6D11;margin-bottom:4px;}
+    .sug-sub{font-size:12px;color:#555;margin-bottom:14px;}
+    .btn-verde{background:#3B6D11;color:#fff;border:none;border-radius:30px;padding:11px 24px;font-size:14px;font-weight:bold;cursor:pointer;width:100%;}
   </style>
 </head>
 <body>
-<div id="app">
+<div id="splash"><img src="logo.png" alt="Unidos por Gran Canaria"><p>Cargando...</p></div>
+<div id="app" class="hidden">
   <header>
     <div class="header-logo-bar">
       <img src="logo.png" class="logo-img" alt="Unidos por Gran Canaria">
       <div class="header-concejal">
         <div class="header-name">José Blas Díaz Bolaños</div>
-        <div class="header-role">Panel Concejal · Gáldar</div>
+        <div class="header-role">Concejal · Ayuntamiento de Gáldar</div>
       </div>
     </div>
     <div class="header-bottom">
-      <div class="header-title" id="header-titulo">Panel de Gestión</div>
-      <div class="header-sub" id="header-sub">Quejas vecinales en tiempo real</div>
+      <div class="header-title">Quejas Vecinales</div>
+      <div class="header-sub">Tu voz llega al Ayuntamiento</div>
     </div>
   </header>
+  <div class="contenido">
+    <div id="formulario">
 
-  <div id="login-box" class="contenido">
-    <div class="login-logo"><img src="logo.png" alt="Logo"></div>
-    <h2>Acceso privado</h2>
-    <p>Área exclusiva del Concejal</p>
-    <div class="campo"><label>Contraseña</label><input type="password" id="pin-input" placeholder="Introduce la contraseña" onkeydown="if(event.key==='Enter') verificarPin()"></div>
-    <button class="btn-primary" onclick="verificarPin()">Entrar</button>
-    <p id="pin-error" class="error hidden">Contraseña incorrecta</p>
-  </div>
-
-  <div id="panel-principal" class="hidden">
-    <div class="tabs-panel">
-      <button class="tab-panel active" id="tab-btn-quejas" onclick="cambiarTab('quejas')">📋 Quejas</button>
-      <button class="tab-panel" id="tab-btn-sugerencias" onclick="cambiarTab('sugerencias')">💡 Ideas</button>
-      <button class="tab-panel" id="tab-btn-intel" onclick="cambiarTab('intel')">🗳️ Intel</button>
-      <button class="tab-panel" id="tab-btn-asesor" onclick="cambiarTab('asesor')">🤖 Asesor</button>
-    </div>
-
-    <!-- TAB QUEJAS -->
-    <div id="tab-quejas" class="contenido tab-content">
-      <div class="dashboard-header"><span>Quejas recibidas</span><button class="btn-logout" onclick="cerrarSesion()">Salir</button></div>
-      <div class="stat-row">
-        <div class="stat-card"><div class="stat-num" id="st-total">0</div><div class="stat-lbl">Total</div></div>
-        <div class="stat-card"><div class="stat-num" id="st-nuevas">0</div><div class="stat-lbl">Nuevas</div></div>
-        <div class="stat-card"><div class="stat-num" id="st-pleno">0</div><div class="stat-lbl">Para pleno</div></div>
-        <div class="stat-card"><div class="stat-num" id="st-resueltas">0</div><div class="stat-lbl">Resueltas</div></div>
-      </div>
-      <div class="filtros">
-        <button class="filtro active" onclick="filtrar('todas',this)">Todas</button>
-        <button class="filtro" onclick="filtrar('nueva',this)">Nuevas</button>
-        <button class="filtro" onclick="filtrar('pleno',this)">Para pleno</button>
-        <button class="filtro" onclick="filtrar('resuelta',this)">Resueltas</button>
-      </div>
-      <div id="lista-quejas"></div>
-    </div>
-
-    <!-- TAB SUGERENCIAS -->
-    <div id="tab-sugerencias" class="contenido tab-content hidden">
-      <div class="dashboard-header"><span>Ideas y Sugerencias</span><button class="btn-logout" onclick="cerrarSesion()">Salir</button></div>
-      <div class="stat-row">
-        <div class="stat-card sug-stat"><div class="stat-num" id="sug-total">0</div><div class="stat-lbl">Total ideas</div></div>
-        <div class="stat-card sug-stat"><div class="stat-num" id="sug-barrios">0</div><div class="stat-lbl">Barrios</div></div>
-        <div class="stat-card sug-stat"><div class="stat-num" id="sug-hoy">0</div><div class="stat-lbl">Esta semana</div></div>
-        <div class="stat-card sug-stat"><div class="stat-num" id="sug-top">-</div><div class="stat-lbl">Zona top</div></div>
-      </div>
-      <div style="margin:12px 0 8px;font-size:12px;color:#888;font-weight:600;letter-spacing:0.5px;">SUGERENCIAS DE LOS VECINOS</div>
-      <div id="lista-sugerencias"><p class="sin-quejas">Cargando...</p></div>
-    </div>
-
-    <!-- TAB INTELIGENCIA -->
-    <div id="tab-intel" class="contenido tab-content hidden">
-      <div class="dashboard-header"><span>Inteligencia Electoral</span><button class="btn-logout" onclick="cerrarSesion()">Salir</button></div>
-      <div class="stat-row">
-        <div class="stat-card"><div class="stat-num" id="intel-total">0</div><div class="stat-lbl">Quejas</div></div>
-        <div class="stat-card"><div class="stat-num" id="intel-barrios">0</div><div class="stat-lbl">Barrios</div></div>
-        <div class="stat-card"><div class="stat-num" id="intel-voto">-</div><div class="stat-lbl">Voto est.</div></div>
-        <div class="stat-card"><div class="stat-num" id="intel-sondeo">-</div><div class="stat-lbl">Valoracion</div></div>
-      </div>
-
-      <!-- MAPA INTERACTIVO -->
-      <div class="intel-section">
-        <div class="intel-title">🗺️ MAPA DE CALOR INTERACTIVO — GÁLDAR</div>
-        <div class="leyenda-mapa">
-          <div class="leyenda-item"><div class="leyenda-dot" style="background:#E24B4A"></div>Muy alta</div>
-          <div class="leyenda-item"><div class="leyenda-dot" style="background:#E8650A"></div>Alta</div>
-          <div class="leyenda-item"><div class="leyenda-dot" style="background:#F5C800"></div>Media</div>
-          <div class="leyenda-item"><div class="leyenda-dot" style="background:#4CAF50"></div>Baja</div>
-          <div class="leyenda-item"><div class="leyenda-dot" style="background:#C5D3EE"></div>Sin quejas</div>
+      <div class="campo">
+        <label>Tu nombre (opcional) <span class="badge-anonimo">Si lo dejas vacío aparecerá como <strong>Anónimo</strong></span></label>
+        <div class="textarea-wrapper">
+          <input type="text" id="nombre" placeholder="Ej. María González">
+          <button class="btn-mic" id="btn-mic-nombre" title="Dictar nombre">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+          </button>
         </div>
-        <div id="mapa-calor"></div>
-        <div class="zona-resumen" id="zona-resumen"></div>
+        <div id="voz-status-nombre" class="voz-status hidden"><span class="voz-dot"></span> Escuchando...</div>
       </div>
 
-      <!-- TENDENCIA -->
-      <div class="intel-section"><div class="intel-title">TENDENCIA MENSUAL</div><div style="position:relative;width:100%;height:180px;"><canvas id="chart-tendencia"></canvas></div></div>
-      <div class="intel-section"><div class="intel-title">POR CATEGORIA</div><div style="position:relative;width:100%;" id="chart-cat-wrap"><canvas id="chart-cat"></canvas></div></div>
-      <div class="intel-section"><div class="intel-title">VOTO POTENCIAL</div><div id="voto-list"></div></div>
-      <div class="intel-section"><div class="intel-title">VALORACION CIUDADANA</div><div class="sondeo-box"><div class="sondeo-q">Te ha resultado util poder enviar esta queja directamente al concejal?</div><div id="sondeo-opts"></div><div class="sondeo-total" id="sondeo-total"></div></div></div>
-      <div class="intel-section"><div class="intel-title">ANALISIS IA</div><div id="insights-list"></div><button class="btn-ia" onclick="generarAnalisisCompleto()"><span id="ia-analisis-icono">+</span> Analisis estrategico completo</button><div id="analisis-resultado" class="ia-box hidden" style="margin-top:10px"></div></div>
-    </div>
-
-    <!-- TAB ASESOR -->
-    <div id="tab-asesor" class="contenido tab-content hidden">
-      <div class="dashboard-header"><span>Mi Asesor Politico</span><button class="btn-logout" onclick="cerrarSesion()">Salir</button></div>
-      <div class="asesor-bienvenida">
-        <div class="asesor-avatar">JB</div>
-        <div><div class="asesor-titulo">Hola Jose Blas!</div><div class="asesor-sub">Tu asesor politico personal. Preguntame lo que necesites.</div></div>
-      </div>
-      <div class="asesor-sugerencias">
-        <div class="asesor-sugerencias-titulo">Sugerencias rapidas</div>
-        <div class="asesor-chips">
-          <button class="chip" onclick="preguntaRapida('Redacta una respuesta a un vecino que se queja de baches en su calle, con tono cercano y propositivo')">Responder queja de vecino</button>
-          <button class="chip" onclick="preguntaRapida('Preparame una pregunta contundente para llevar al pleno municipal sobre el estado de las vias publicas en Galdar, con datos y tono propositivo')">Pregunta para el pleno</button>
-          <button class="chip" onclick="preguntaRapida('Escribeme un post de Facebook sobre mi trabajo como concejal esta semana, mencionando que recibo quejas y sugerencias directas de los vecinos por app. Tono cercano y autentico')">Post Facebook semanal</button>
-          <button class="chip" onclick="preguntaRapida('Dame 3 argumentos concretos para usar en el proximo pleno municipal sobre problemas de iluminacion, baches y limpieza en Galdar')">Argumentos para el pleno</button>
-          <button class="chip" onclick="preguntaRapida('Redacta un mensaje de WhatsApp para enviar a mis contactos de La Montana explicandoles que pueden enviarme sus quejas y sugerencias directamente por la app')">WhatsApp para vecinos</button>
-          <button class="chip" onclick="preguntaRapida('Analiza mi situacion: soy Jose Blas Diaz Bolanos, unico concejal de UxGC en Galdar. El alcalde lleva desde 2007. Dame 3 acciones para ganar visibilidad antes de 2027')">Estrategia 2027</button>
-          <button class="chip" onclick="preguntaRapida('Analiza las sugerencias que han enviado los vecinos de Galdar por la app y dame 3 propuestas concretas que Jose Blas pueda llevar al pleno municipal basadas en esas ideas')">💡 Ideas de vecinos</button>
+      <div class="campo">
+        <label>Barrio o zona *</label>
+        <input type="hidden" id="barrio" value="">
+        <div id="barrio-selector">
+          <div class="zona-grupo"><div class="zona-label" style="color:#0077CC">🌊 Costa</div><div class="zona-chips">
+            <button type="button" class="barrio-btn" data-barrio="Puerto de Sardina" data-color="#0077CC">Puerto de Sardina</button>
+            <button type="button" class="barrio-btn" data-barrio="El Agujero" data-color="#0077CC">El Agujero</button>
+            <button type="button" class="barrio-btn" data-barrio="La Guancha" data-color="#0077CC">La Guancha</button>
+          </div></div>
+          <div class="zona-grupo"><div class="zona-label" style="color:#FF9900">🏠 Urbana</div><div class="zona-chips">
+            <button type="button" class="barrio-btn" data-barrio="Gáldar Casco" data-color="#FF9900">Gáldar Casco</button>
+            <button type="button" class="barrio-btn" data-barrio="San Isidro" data-color="#FF9900">San Isidro</button>
+            <button type="button" class="barrio-btn" data-barrio="Barrial" data-color="#FF9900">Barrial</button>
+            <button type="button" class="barrio-btn" data-barrio="Marmolejos" data-color="#FF9900">Marmolejos</button>
+            <button type="button" class="barrio-btn" data-barrio="Los Quintanas - Piso Firme" data-color="#FF9900">Los Quintanas</button>
+          </div></div>
+          <div class="zona-grupo"><div class="zona-label" style="color:#33AA33">🌿 Medianías</div><div class="zona-chips">
+            <button type="button" class="barrio-btn" data-barrio="Hoya de Pineda" data-color="#33AA33">Hoya de Pineda</button>
+            <button type="button" class="barrio-btn" data-barrio="Saucillo" data-color="#33AA33">Saucillo</button>
+            <button type="button" class="barrio-btn" data-barrio="Juncalillo" data-color="#33AA33">Juncalillo</button>
+          </div></div>
+          <div class="zona-grupo"><div class="zona-label" style="color:#663399">⛰️ Cumbre</div><div class="zona-chips">
+            <button type="button" class="barrio-btn" data-barrio="Caideros" data-color="#663399">Caideros</button>
+            <button type="button" class="barrio-btn" data-barrio="Fagajesto" data-color="#663399">Fagajesto</button>
+          </div></div>
         </div>
+        <div id="barrio-error" style="color:#E24B4A;font-size:12px;margin-top:4px;display:none;">Por favor selecciona tu barrio</div>
       </div>
-      <div id="asesor-chat" class="asesor-chat"></div>
-      <div class="asesor-input-wrap">
-        <textarea id="asesor-input" class="asesor-input" placeholder="Escribe tu pregunta..." rows="2" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();enviarAsesor();}"></textarea>
-        <button class="asesor-send" id="asesor-send" onclick="enviarAsesor()">&#10148;</button>
+
+      <div class="campo">
+        <label>Categoría del problema *</label>
+        <select id="categoria">
+          <option value="">Selecciona categoría...</option>
+          <option>Vías y baches</option><option>Iluminación pública</option><option>Limpieza y residuos</option>
+          <option>Parques y zonas verdes</option><option>Servicios sociales</option><option>Ruidos y molestias</option>
+          <option>Transporte</option><option>Otra</option>
+        </select>
       </div>
+
+      <div class="campo">
+        <label>Describe el problema *</label>
+        <div class="textarea-wrapper">
+          <textarea id="descripcion" placeholder="Cuéntanos qué está pasando... o usa el micrófono"></textarea>
+          <button class="btn-mic" id="btn-mic-desc" title="Dictar">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+          </button>
+        </div>
+        <div id="voz-status-desc" class="voz-status hidden"><span class="voz-dot"></span> Escuchando...</div>
+      </div>
+
+      <div class="campo">
+        <label>Foto de la incidencia (opcional)</label>
+        <div class="foto-area" id="foto-area">
+          <div id="foto-placeholder">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1A3A6B" stroke-width="1.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            <span>Toca para hacer una foto</span>
+          </div>
+          <img id="foto-preview" class="hidden" alt="Foto">
+          <button id="btn-borrar-foto" class="btn-borrar-foto hidden">✕ Borrar foto</button>
+        </div>
+        <input type="file" id="input-camara" accept="image/*" capture="environment" style="display:none">
+      </div>
+
+      <button class="btn-ia" id="btn-ia"><span id="ia-icono">✦</span> Analizar con IA antes de enviar</button>
+      <div id="ia-resultado" class="hidden"><div class="ia-box"><div class="ia-label">ANÁLISIS IA</div><div id="ia-texto"></div></div></div>
+      <button class="btn-primary" id="btn-enviar-queja">Enviar queja al concejal</button>
+
+      <hr class="sep">
+      <div class="sug-banner">
+        <div class="sug-titulo">💡 ¿Tienes una idea para Gáldar?</div>
+        <div class="sug-sub">Comparte tus propuestas, mejoras o recomendaciones</div>
+        <button class="btn-verde" id="btn-abrir-sug">✍️ Enviar sugerencia o mejora</button>
+      </div>
+
+      <div id="form-sug" style="display:none;margin-top:16px;">
+        <div class="campo">
+          <label>Tu nombre (opcional)</label>
+          <div class="textarea-wrapper">
+            <input type="text" id="sug-nombre" placeholder="Ej. Antonio Pérez">
+            <button class="btn-mic" id="btn-mic-sug-nombre" title="Dictar">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+            </button>
+          </div>
+          <div id="voz-status-sug-nombre" class="voz-status hidden"><span class="voz-dot"></span> Escuchando...</div>
+        </div>
+        <div class="campo">
+          <label>Barrio o zona *</label>
+          <input type="hidden" id="sug-barrio" value="">
+          <div id="sug-barrio-selector">
+            <div class="zona-grupo"><div class="zona-label" style="color:#0077CC">🌊 Costa</div><div class="zona-chips">
+              <button type="button" class="barrio-btn sug-btn" data-barrio="Puerto de Sardina" data-color="#0077CC">Puerto de Sardina</button>
+              <button type="button" class="barrio-btn sug-btn" data-barrio="El Agujero" data-color="#0077CC">El Agujero</button>
+              <button type="button" class="barrio-btn sug-btn" data-barrio="La Guancha" data-color="#0077CC">La Guancha</button>
+            </div></div>
+            <div class="zona-grupo"><div class="zona-label" style="color:#FF9900">🏠 Urbana</div><div class="zona-chips">
+              <button type="button" class="barrio-btn sug-btn" data-barrio="Gáldar Casco" data-color="#FF9900">Gáldar Casco</button>
+              <button type="button" class="barrio-btn sug-btn" data-barrio="San Isidro" data-color="#FF9900">San Isidro</button>
+              <button type="button" class="barrio-btn sug-btn" data-barrio="Barrial" data-color="#FF9900">Barrial</button>
+              <button type="button" class="barrio-btn sug-btn" data-barrio="Marmolejos" data-color="#FF9900">Marmolejos</button>
+              <button type="button" class="barrio-btn sug-btn" data-barrio="Los Quintanas - Piso Firme" data-color="#FF9900">Los Quintanas</button>
+            </div></div>
+            <div class="zona-grupo"><div class="zona-label" style="color:#33AA33">🌿 Medianías</div><div class="zona-chips">
+              <button type="button" class="barrio-btn sug-btn" data-barrio="Hoya de Pineda" data-color="#33AA33">Hoya de Pineda</button>
+              <button type="button" class="barrio-btn sug-btn" data-barrio="Saucillo" data-color="#33AA33">Saucillo</button>
+              <button type="button" class="barrio-btn sug-btn" data-barrio="Juncalillo" data-color="#33AA33">Juncalillo</button>
+            </div></div>
+            <div class="zona-grupo"><div class="zona-label" style="color:#663399">⛰️ Cumbre</div><div class="zona-chips">
+              <button type="button" class="barrio-btn sug-btn" data-barrio="Caideros" data-color="#663399">Caideros</button>
+              <button type="button" class="barrio-btn sug-btn" data-barrio="Fagajesto" data-color="#663399">Fagajesto</button>
+            </div></div>
+            <div class="zona-grupo"><div class="zona-label" style="color:#888">🌍 General</div><div class="zona-chips">
+              <button type="button" class="barrio-btn sug-btn" data-barrio="Todo el municipio" data-color="#888">Todo el municipio</button>
+            </div></div>
+          </div>
+        </div>
+        <div class="campo">
+          <label>Tu idea o sugerencia *</label>
+          <div class="textarea-wrapper">
+            <textarea id="sug-texto" placeholder="Ej. Sería bueno tener más bancos en el parque..."></textarea>
+            <button class="btn-mic" id="btn-mic-sug-texto" title="Dictar">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+            </button>
+          </div>
+          <div id="voz-status-sug-texto" class="voz-status hidden"><span class="voz-dot"></span> Escuchando...</div>
+        </div>
+        <button class="btn-verde" id="btn-enviar-sug" style="margin-top:8px;">💡 Enviar mi sugerencia</button>
+      </div>
+
+    </div>
+
+    <div id="enviada-ok" class="hidden enviada-ok">
+      <div class="check-circle">✓</div>
+      <h2>¡Queja enviada!</h2>
+      <p>José Blas la ha recibido y la llevará al próximo pleno.<br>Gracias por participar en la mejora de Gáldar.</p>
+      <button class="btn-primary" id="btn-nueva-queja">Enviar otra queja</button>
+    </div>
+
+    <div id="enviada-sug-ok" class="hidden enviada-ok">
+      <div class="check-circle" style="background:#3B6D11">💡</div>
+      <h2>¡Sugerencia enviada!</h2>
+      <p>José Blas ha recibido tu idea.<br>¡Gracias por construir un Gáldar mejor!</p>
+      <button class="btn-primary" style="background:#3B6D11" id="btn-volver-sug">Volver al inicio</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL POST QUEJA -->
-<div id="modal-post" class="modal-overlay hidden">
-  <div class="modal-box">
-    <div class="ia-label">POST FACEBOOK</div>
-    <p id="modal-post-texto"></p>
-    <button class="btn-primary" onclick="copiarPostModal()">Copiar</button>
-    <button class="btn-secondary" onclick="document.getElementById('modal-post').classList.add('hidden')">Cerrar</button>
-  </div>
-</div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-<!-- MODAL SUGERENCIA -->
-<div id="modal-sug" class="modal-overlay hidden">
-  <div class="modal-sug-box">
-    <div class="modal-sug-label" id="modal-sug-label">MENSAJE</div>
-    <div class="modal-sug-texto" id="modal-sug-texto">Generando...</div>
-    <div class="modal-sug-btns">
-      <button class="btn-primary" onclick="copiarModalSug()">Copiar</button>
-      <button class="btn-secondary" onclick="document.getElementById('modal-sug').classList.add('hidden')">Cerrar</button>
-    </div>
-  </div>
-</div>
-
-<script>
-var WORKER_URL = "https://orange-boat-6d42.pedrosaborrego.workers.dev/";
-var PIN = "galdar2025";
-var quejasCache = [];
-var sugerenciasCache = [];
-var filtroActual = "todas";
-var historialChat = [];
-var chartTend = null;
-var chartCat = null;
-var quejasConocidas = null;
-var mapaLeaflet = null;
-var marcadores = [];
-var TELEGRAM_TOKEN = "8772067102:AAFNR2Txk6P9XxLZg9GZwunT4v1YcdNLEZY";
-var TELEGRAM_CHAT_ID = "8601457137";
-
-
-var barriosData = {
-  "Galdar Casco": {
-    prioridad: 3, zona: "Urbana",
-    categorias: ["Aceras","Trafico","Residuos","Ruido","Alumbrado"],
-    problemas: ["Aceras estrechas o rotas","Contenedores llenos","Ruidos nocturnos","Falta de aparcamiento","Senalizacion borrada"],
-    alertas: ["Quejas por accesibilidad (sillas de ruedas)","Atascos en calles de un solo sentido","Olores en alcantarillado en dias de calor"]
-  },
-  "San Isidro": {
-    prioridad: 3, zona: "Urbana",
-    categorias: ["Aceras","Alumbrado","Residuos","Parques","Trafico"],
-    problemas: ["Aceras sin rematar en calles nuevas","Contenedores insuficientes","Parques infantiles deteriorados","Trafico en rotonda principal"],
-    alertas: ["Falta de iluminacion en calles nuevas","Problemas de presion de agua en viviendas altas"]
-  },
-  "Barrial": {
-    prioridad: 2, zona: "Urbana",
-    categorias: ["Asfalto","Residuos","Alumbrado","Ruido","Parques"],
-    problemas: ["Calles con baches por trafico intenso","Contenedores saturados","Alumbrado irregular"],
-    alertas: ["Quejas por ruidos en zonas de ocio y canchas","Necesidad de poda en arboles"]
-  },
-  "Marmolejos": {
-    prioridad: 2, zona: "Urbana",
-    categorias: ["Aceras","Alumbrado","Parques","Olores","Trafico"],
-    problemas: ["Aceras sin rebajes","Alumbrado antiguo","Contenedores mal ubicados"],
-    alertas: ["Velocidad excesiva en calles rectas","Olores en alcantarillado tras lluvias"]
-  },
-  "Los Quintanas - Piso Firme": {
-    prioridad: 2, zona: "Urbana",
-    categorias: ["Asfalto","Alumbrado","Seguridad","Parques"],
-    problemas: ["Calles con desgaste","Falta de pasos de peatones","Puntos de luz insuficientes"],
-    alertas: ["Inseguridad nocturna","Necesidad de poda urgente"]
-  },
-  "Puerto de Sardina": {
-    prioridad: 3, zona: "Costa",
-    categorias: ["Alumbrado","Playas","Residuos","Aparcamiento","Olores"],
-    problemas: ["Corrosion por salitre en farolas","Limpieza de playa","Aparcamiento saturado en verano"],
-    alertas: ["Vertidos o manchas en el agua","Desprendimientos en muros costeros","Caida de presion de agua"]
-  },
-  "El Agujero": {
-    prioridad: 3, zona: "Costa",
-    categorias: ["Playas","Alumbrado","Residuos","Seguridad"],
-    problemas: ["Desgaste del paseo","Farolas corroidas","Basura en zonas rocosas"],
-    alertas: ["Oleaje peligroso sin senalizar","Vertidos en zonas rocosas"]
-  },
-  "La Guancha": {
-    prioridad: 2, zona: "Costa",
-    categorias: ["Alumbrado","Asfalto","Residuos"],
-    problemas: ["Iluminacion insuficiente","Pavimento deteriorado","Contenedores mal ubicados"],
-    alertas: ["Desprendimientos en temporales","Presion de agua baja"]
-  },
-  "Hoya de Pineda": {
-    prioridad: 2, zona: "Medianias",
-    categorias: ["Carreteras","Alumbrado","Transporte","Agua"],
-    problemas: ["Desprendimientos en taludes","Caminos rurales deteriorados","Transporte publico limitado"],
-    alertas: ["Cortes de luz en temporales","Necesidad de limpieza de cunetas"]
-  },
-  "Saucillo": {
-    prioridad: 2, zona: "Medianias",
-    categorias: ["Carreteras","Alumbrado","Residuos","Agua"],
-    problemas: ["Caminos rurales deteriorados","Alumbrado escaso","Contenedores alejados","Cortes de agua"],
-    alertas: ["Cortes de luz en temporales","Cunetas obstruidas"]
-  },
-  "Juncalillo": {
-    prioridad: 2, zona: "Medianias",
-    categorias: ["Carreteras","Transporte","Alumbrado"],
-    problemas: ["Taludes inestables","Pocas conexiones de guagua","Iluminacion debil"],
-    alertas: ["Desprendimientos tras lluvias","Aislamiento en temporales"]
-  },
-  "Caideros": {
-    prioridad: 1, zona: "Cumbre",
-    categorias: ["Carreteras","Electricidad","Agua","Cobertura"],
-    problemas: ["Carreteras estrechas y peligrosas","Caidas de luz frecuentes","Problemas de abastecimiento de agua"],
-    alertas: ["Zonas sin cobertura movil","Accesos intransitables en temporales","Aislamiento en temporales"]
-  },
-  "Fagajesto": {
-    prioridad: 1, zona: "Cumbre",
-    categorias: ["Carreteras","Electricidad","Agua"],
-    problemas: ["Accesos complicados","Lineas electricas vulnerables","Falta de presion de agua"],
-    alertas: ["Pistas agricolas deterioradas","Aislamiento en temporales","Cortes de suministro"]
-  }
+const firebaseConfig = {
+  apiKey:"AIzaSyArK1mSHIHsxObbPxsG8VB7HgFMy2tC-6U",
+  authDomain:"galdar-quejas.firebaseapp.com",
+  projectId:"galdar-quejas",
+  storageBucket:"galdar-quejas.firebasestorage.app",
+  messagingSenderId:"260225193649",
+  appId:"1:260225193649:web:6ca2c3ef2007685850f490"
 };
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-// Problemas transversales de todo Galdar
-var problemasTransversales = [
-  "Contenedores insuficientes o mal ubicados",
-  "Alumbrado antiguo o con fallos",
-  "Aceras sin accesibilidad",
-  "Baches y desgaste del asfalto",
-  "Parques infantiles con mantenimiento irregular",
-  "Senalizacion horizontal borrada",
-  "Ruidos nocturnos",
-  "Falta de poda o arboles peligrosos",
-  "Olores en alcantarillado",
-  "Falta de aparcamiento en zonas densas"
-];
+const WORKER = "https://orange-boat-6d42.pedrosaborrego.workers.dev/";
+const TG_TOKEN = "8772067102:AAFNR2Txk6P9XxLZg9GZwunT4v1YcdNLEZY";
+const TG_CHAT = "8601457137";    // Juan Manuel
+const TG_CHAT_BLAS = "8655270396"; // Jose Blas
+let fotoBase64 = null;
 
-var barriosGaldar = [
-  { nombre: "Puerto de Sardina", zona: "Costa", lat: 28.153, lng: -15.686 },
-  { nombre: "El Agujero", zona: "Costa", lat: 28.148, lng: -15.700 },
-  { nombre: "La Guancha", zona: "Costa", lat: 28.151, lng: -15.673 },
-  { nombre: "Gáldar Casco", zona: "Urbana", lat: 28.144, lng: -15.650 },
-  { nombre: "San Isidro", zona: "Urbana", lat: 28.140, lng: -15.642 },
-  { nombre: "Barrial", zona: "Urbana", lat: 28.142, lng: -15.658 },
-  { nombre: "Marmolejos", zona: "Urbana", lat: 28.138, lng: -15.647 },
-  { nombre: "Los Quintanas - Piso Firme", zona: "Urbana", lat: 28.136, lng: -15.653 },
-  { nombre: "Hoya de Pineda", zona: "Medianías", lat: 28.132, lng: -15.660 },
-  { nombre: "Saucillo", zona: "Medianías", lat: 28.127, lng: -15.668 },
-  { nombre: "Juncalillo", zona: "Medianías", lat: 28.125, lng: -15.680 },
-  { nombre: "Caideros", zona: "Cumbre", lat: 28.158, lng: -15.640 },
-  { nombre: "Fagajesto", zona: "Cumbre", lat: 28.148, lng: -15.628 }
-];
+// Splash
+setTimeout(() => {
+  document.getElementById('splash').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+}, 800);
 
-var zonas = {
-  "Costa":     { color: "#0077CC", icono: "🌊" },
-  "Urbana":    { color: "#FF9900", icono: "🏠" },
-  "Medianías": { color: "#33AA33", icono: "🌿" },
-  "Cumbre":    { color: "#663399", icono: "⛰️" }
-};
-
-var firebaseConfig = {
-  apiKey: "AIzaSyArK1mSHIHsxObbPxsG8VB7HgFMy2tC-6U",
-  authDomain: "galdar-quejas.firebaseapp.com",
-  projectId: "galdar-quejas",
-  storageBucket: "galdar-quejas.firebasestorage.app",
-  messagingSenderId: "260225193649",
-  appId: "1:260225193649:web:6ca2c3ef2007685850f490"
-};
-
-firebase.initializeApp(firebaseConfig);
-var db = firebase.firestore();
-
-function verificarPin() {
-  var pin = document.getElementById('pin-input').value;
-  if (pin === PIN) {
-    document.getElementById('login-box').classList.add('hidden');
-    document.getElementById('panel-principal').classList.remove('hidden');
-    document.getElementById('pin-error').classList.add('hidden');
-    cargarQuejas();
-    cargarSugerencias();
-  } else {
-    document.getElementById('pin-error').classList.remove('hidden');
-    document.getElementById('pin-input').value = '';
+// Telegram
+async function tg(emoji, tipo, barrio, nombre, texto) {
+  const msg = emoji+' '+tipo+' en Galdar\n📍 '+barrio+'\n👤 '+nombre+'\n💬 '+texto.substring(0,120);
+  for (const chat_id of [TG_CHAT, TG_CHAT_BLAS]) {
+    try {
+      await fetch(WORKER, {method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({telegram:true, token:TG_TOKEN, chat_id:chat_id, text:msg})});
+    } catch(e) {}
   }
 }
 
-function cerrarSesion() {
-  document.getElementById('panel-principal').classList.add('hidden');
-  document.getElementById('login-box').classList.remove('hidden');
-  document.getElementById('pin-input').value = '';
-}
-
-function cambiarTab(tab) {
-  document.querySelectorAll('.tab-panel').forEach(function(t) { t.classList.remove('active'); });
-  document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.add('hidden'); });
-  document.getElementById('tab-btn-' + tab).classList.add('active');
-  document.getElementById('tab-' + tab).classList.remove('hidden');
-  var titulos = {
-    quejas: ['Panel de Gestion', 'Quejas vecinales en tiempo real'],
-    sugerencias: ['Ideas y Sugerencias', 'Propuestas de los vecinos de Galdar'],
-    intel: ['Inteligencia Electoral', 'Analisis y estimacion de voto'],
-    asesor: ['Mi Asesor Politico', 'Tu asesor personal 24h']
-  };
-  document.getElementById('header-titulo').textContent = titulos[tab][0];
-  document.getElementById('header-sub').textContent = titulos[tab][1];
-  if (tab === 'intel') {
-    renderInteligencia();
-    setTimeout(function() { if (mapaLeaflet) mapaLeaflet.invalidateSize(); }, 300);
-  }
-}
-
-function enviarTelegram(msg) {
-  fetch(WORKER_URL, { method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ telegram:true, token:TELEGRAM_TOKEN, chat_id:TELEGRAM_CHAT_ID, text:msg })
-  }).catch(function(){});
-}
-
-function cargarQuejas() {
-  db.collection("quejas").orderBy("fecha","desc").onSnapshot(function(snap) {
-    var nuevas = snap.docs.map(function(d) { return Object.assign({id:d.id}, d.data()); });
-    if (quejasConocidas !== null) {
-      nuevas.forEach(function(q) {
-        if (!quejasConocidas.some(function(c){return c.id===q.id;})) {
-          enviarTelegram("🔔 Nueva queja en Galdar\n📍 "+(q.barrio||'')+" · "+(q.categoria||'')+"\n👤 "+(q.nombre||'Anonimo')+"\n💬 "+(q.descripcion||'').substring(0,100));
-        }
-      });
+// Voz genérica
+function iniciarVoz(btnId, statusId, campoId, continuo) {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const btn = document.getElementById(btnId);
+  const status = document.getElementById(statusId);
+  const campo = document.getElementById(campoId);
+  if(!btn || !SR) return;
+  let grabando = false, rec = null;
+  btn.addEventListener('click', () => {
+    if(grabando){grabando=false;if(rec)rec.abort();btn.classList.remove('grabando');status.classList.add('hidden');return;}
+    grabando=true;btn.classList.add('grabando');status.classList.remove('hidden');
+    function escuchar(){
+      if(!grabando)return;
+      rec=new SR();rec.lang='es-ES';rec.continuous=false;rec.interimResults=false;rec.maxAlternatives=1;
+      rec.onresult=(e)=>{if(e.results.length>0){let t=e.results[0][0].transcript.trim();t=t.charAt(0).toUpperCase()+t.slice(1);campo.value=campo.value.trim()?(campo.value.trim()+' '+t):t;}};
+      rec.onerror=(e)=>{if(e.error==='no-speech'&&continuo&&grabando){escuchar();}else{grabando=false;btn.classList.remove('grabando');status.classList.add('hidden');}};
+      rec.onend=()=>{if(continuo&&grabando)escuchar();else{grabando=false;btn.classList.remove('grabando');status.classList.add('hidden');}};
+      rec.start();
     }
-    quejasConocidas = nuevas;
-    quejasCache = nuevas;
-    renderQuejas();
+    escuchar();
   });
 }
 
-function cargarSugerencias() {
-  db.collection("sugerencias").orderBy("fecha","desc").onSnapshot(function(snap) {
-    sugerenciasCache = snap.docs.map(function(d) { return Object.assign({id:d.id}, d.data()); });
-    renderSugerencias();
+// Iniciar micrófonos
+iniciarVoz('btn-mic-nombre','voz-status-nombre','nombre',false);
+iniciarVoz('btn-mic-desc','voz-status-desc','descripcion',true);
+iniciarVoz('btn-mic-sug-nombre','voz-status-sug-nombre','sug-nombre',false);
+iniciarVoz('btn-mic-sug-texto','voz-status-sug-texto','sug-texto',true);
+
+// Barrio queja
+document.querySelectorAll('#barrio-selector .barrio-btn').forEach(btn => {
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('#barrio-selector .barrio-btn').forEach(b=>{b.style.background='#fff';b.style.color='#555';b.style.borderColor='#ddd';});
+    this.style.background=this.dataset.color;this.style.color='#fff';this.style.borderColor=this.dataset.color;
+    document.getElementById('barrio').value=this.dataset.barrio;
+    document.getElementById('barrio-error').style.display='none';
   });
-}
+});
 
-// ── MAPA INTERACTIVO
-function iniciarMapa() {
-  if (mapaLeaflet) return;
-  mapaLeaflet = L.map('mapa-calor', { zoomControl: true, scrollWheelZoom: false })
-    .setView([28.138, -15.660], 12);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap',
-    maxZoom: 16
-  }).addTo(mapaLeaflet);
-}
-
-function actualizarMapa(porBarrio, maxQ) {
-  iniciarMapa();
-  marcadores.forEach(function(m) { mapaLeaflet.removeLayer(m); });
-  marcadores = [];
-
-  barriosGaldar.forEach(function(b) {
-    var n = porBarrio[b.nombre] || 0;
-    var r = maxQ > 0 ? n / maxQ : 0;
-    var color = n === 0 ? '#C5D3EE' : r > 0.7 ? '#E24B4A' : r > 0.4 ? '#E8650A' : r > 0.1 ? '#F5C800' : '#4CAF50';
-    var radius = n === 0 ? 14 : 14 + Math.round(r * 24);
-    var zona = zonas[b.zona] || { color: '#888', icono: '📍' };
-
-    var circle = L.circleMarker([b.lat, b.lng], {
-      radius: radius,
-      fillColor: color,
-      color: '#fff',
-      weight: 2,
-      opacity: 1,
-      fillOpacity: 0.85
-    }).addTo(mapaLeaflet);
-
-    // Get barrio specific data - try different name formats
-    var nombreKey = b.nombre.replace('Gáldar', 'Galdar').replace('á','a').replace('é','e').replace('í','i').replace('ó','o').replace('ú','u').replace('ñ','n');
-    var bData = barriosData[b.nombre] || barriosData[nombreKey] || null;
-    var prioridadColor = bData ? (bData.prioridad===3?'#E24B4A':bData.prioridad===2?'#E8650A':'#888') : '#888';
-    var prioridadTexto = bData ? (bData.prioridad===3?'PRIORIDAD ALTA':bData.prioridad===2?'PRIORIDAD MEDIA':'PRIORIDAD BAJA') : '';
-    var categoriasHTML = bData ? bData.categorias.map(function(c){return '<span style="display:inline-block;background:#1A3A6B20;color:#1A3A6B;border-radius:10px;padding:2px 7px;font-size:10px;margin:2px;font-weight:600">'+c+'</span>';}).join('') : '';
-    var alertasHTML = bData && bData.alertas ? bData.alertas.map(function(a){return '<div style="font-size:10px;color:#E8650A;padding:2px 0">⚠ '+a+'</div>';}).join('') : '';
-    var problemasHTML = bData ? bData.problemas.map(function(p){return '<div style="font-size:10px;color:#555;padding:2px 0">• '+p+'</div>';}).join('') : '';
-
-    var popupHTML = '<div class="popup-barrio" style="min-width:200px">' +
-      '<h4>' + zona.icono + ' ' + b.nombre + '</h4>' +
-      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">' +
-        '<div><span class="popup-num">' + n + '</span><span class="popup-lbl"> queja' + (n!==1?'s':'') + '</span></div>' +
-        (bData ? '<span style="background:'+prioridadColor+'20;color:'+prioridadColor+';font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px">'+prioridadTexto+'</span>' : '') +
-      '</div>' +
-      (categoriasHTML ? '<div style="margin-bottom:6px"><div style="font-size:10px;font-weight:700;color:#888;margin-bottom:4px">CATEGORIAS FRECUENTES</div>' + categoriasHTML + '</div>' : '') +
-      (problemasHTML ? '<div style="border-top:1px solid #eee;padding-top:6px"><div style="font-size:10px;font-weight:700;color:#888;margin-bottom:4px">PROBLEMAS TIPICOS</div>' + problemasHTML + '</div>' : '') +
-      (alertasHTML ? '<div style="border-top:1px solid #eee;padding-top:6px;margin-top:4px"><div style="font-size:10px;font-weight:700;color:#E8650A;margin-bottom:4px">⚠ SENALES DE ALERTA</div>' + alertasHTML + '</div>' : '') +
-      '</div>';
-
-    circle.bindPopup(popupHTML);
-
-    // Label
-    var label = L.divIcon({
-      className: '',
-      html: '<div style="background:rgba(255,255,255,0.92);border-radius:8px;padding:2px 6px;font-size:10px;font-weight:700;color:#333;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,0.2)">' + b.nombre.split(' ')[0] + (n > 0 ? ' <span style="color:'+color+'">'+n+'</span>' : '') + '</div>',
-      iconAnchor: [-16, 10]
-    });
-    var labelMarker = L.marker([b.lat, b.lng], { icon: label, interactive: false }).addTo(mapaLeaflet);
-    marcadores.push(circle);
-    marcadores.push(labelMarker);
+// Barrio sugerencia
+document.querySelectorAll('#sug-barrio-selector .sug-btn').forEach(btn => {
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('#sug-barrio-selector .sug-btn').forEach(b=>{b.style.background='#fff';b.style.color='#555';b.style.borderColor='#ddd';});
+    this.style.background=this.dataset.color;this.style.color='#fff';this.style.borderColor=this.dataset.color;
+    document.getElementById('sug-barrio').value=this.dataset.barrio;
   });
-}
+});
 
-function renderZonaResumen(porBarrio) {
-  var porZona = {};
-  barriosGaldar.forEach(function(b) {
-    var z = b.zona;
-    if (!porZona[z]) porZona[z] = 0;
-    porZona[z] += (porBarrio[b.nombre] || 0);
-  });
-  var html = '';
-  Object.keys(zonas).forEach(function(z) {
-    var n = porZona[z] || 0;
-    var info = zonas[z];
-    html += '<div class="zona-chip" style="background:' + info.color + '">' + info.icono + ' ' + z + ': ' + n + '</div>';
-  });
-  document.getElementById('zona-resumen').innerHTML = html;
-}
+// Abrir/cerrar form sugerencia
+document.getElementById('btn-abrir-sug').addEventListener('click', () => {
+  const f = document.getElementById('form-sug');
+  f.style.display = f.style.display==='block' ? 'none' : 'block';
+  if(f.style.display==='block') f.scrollIntoView({behavior:'smooth',block:'start'});
+});
 
-function renderSugerencias() {
-  var total = sugerenciasCache.length;
-  var porBarrio = {};
-  var ahora = new Date();
-  var semanaAtras = new Date(ahora.getTime() - 7*24*60*60*1000);
-  var estaSemana = 0;
-  sugerenciasCache.forEach(function(s) {
-    if (s.barrio) porBarrio[s.barrio] = (porBarrio[s.barrio]||0) + 1;
-    if (s.fecha && s.fecha.toDate && s.fecha.toDate() > semanaAtras) estaSemana++;
-  });
-  var barrios = Object.keys(porBarrio).length;
-  var topBarrio = Object.entries(porBarrio).sort(function(a,b){return b[1]-a[1];})[0];
-  document.getElementById('sug-total').textContent = total;
-  document.getElementById('sug-barrios').textContent = barrios;
-  document.getElementById('sug-hoy').textContent = estaSemana;
-  document.getElementById('sug-top').textContent = topBarrio ? topBarrio[0].split(' ')[0] : '-';
-  var lista = document.getElementById('lista-sugerencias');
-  if (!sugerenciasCache.length) { lista.innerHTML = '<p class="sin-quejas">Aun no hay sugerencias</p>'; return; }
-  lista.innerHTML = sugerenciasCache.map(function(s) {
-    var fecha = s.fecha&&s.fecha.toDate ? s.fecha.toDate().toLocaleDateString('es-ES',{day:'numeric',month:'short',year:'numeric'}) : (s.fechaTexto||'');
-    var textoEsc = (s.texto||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');
-    var barrioEsc = (s.barrio||'').replace(/'/g,"\\'");
-    var nombreEsc = (s.nombre||'Anonimo').replace(/'/g,"\\'");
-    return '<div class="sug-card">' +
-      '<div class="sug-header"><span class="sug-barrio">📍 '+(s.barrio||'Sin barrio')+'</span><span class="sug-fecha">'+fecha+'</span></div>' +
-      '<div class="sug-texto">'+(s.texto||'')+'</div>' +
-      '<div class="sug-nombre">👤 '+(s.nombre||'Anonimo')+'</div>' +
-      '<div class="sug-acciones">' +
-        '<button class="btn-sug-accion btn-sug-wa" onclick="responderSugerencia(\'wa\',\''+barrioEsc+'\',\''+nombreEsc+'\',\''+textoEsc+'\')">💬 WhatsApp</button>' +
-        '<button class="btn-sug-accion btn-sug-fb" onclick="responderSugerencia(\'fb\',\''+barrioEsc+'\',\''+nombreEsc+'\',\''+textoEsc+'\')">📘 Facebook</button>' +
-        '<button class="btn-sug-accion btn-sug-pleno" onclick="responderSugerencia(\'pleno\',\''+barrioEsc+'\',\''+nombreEsc+'\',\''+textoEsc+'\')">📋 Pleno</button>' +
-      '</div></div>';
-  }).join('');
-}
-
-function responderSugerencia(tipo, barrio, nombre, texto) {
-  var modal = document.getElementById('modal-sug');
-  var label = document.getElementById('modal-sug-label');
-  var contenido = document.getElementById('modal-sug-texto');
-  modal.classList.remove('hidden');
-  contenido.textContent = 'Generando con IA...';
-  var prompts = {
-    wa: 'Redacta un mensaje de WhatsApp de Jose Blas Diaz Bolanos (concejal UxGC Galdar) para agradecer y responder a un vecino llamado '+nombre+' del barrio '+barrio+' que ha enviado esta sugerencia: "'+texto+'". Tono cercano, personal, agradecido. Maximo 4 frases. Solo el texto.',
-    fb: 'Redacta un post de Facebook de Jose Blas Diaz Bolanos (concejal UxGC Galdar) compartiendo publicamente esta sugerencia de un vecino de '+barrio+': "'+texto+'". Destaca que escucha a los vecinos, tono propositivo, 3-4 frases, #Galdar #UnidosPorGranCanaria. Solo el texto.',
-    pleno: 'Redacta una propuesta formal para el pleno municipal de Galdar basada en esta sugerencia del barrio '+barrio+': "'+texto+'". Formato: titulo, argumentacion 2-3 puntos, solicitud concreta. Tono formal.'
+// Foto
+document.getElementById('foto-area').addEventListener('click', () => document.getElementById('input-camara').click());
+document.getElementById('input-camara').addEventListener('change', e => {
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    fotoBase64 = ev.target.result;
+    document.getElementById('foto-placeholder').classList.add('hidden');
+    document.getElementById('foto-preview').src=fotoBase64;
+    document.getElementById('foto-preview').classList.remove('hidden');
+    document.getElementById('btn-borrar-foto').classList.remove('hidden');
   };
-  var labels = { wa:'WHATSAPP — RESPUESTA AL VECINO', fb:'POST FACEBOOK — SUGERENCIA PUBLICA', pleno:'PROPUESTA PARA EL PLENO' };
-  label.textContent = labels[tipo];
-  llamarIA([{role:'user',content:prompts[tipo]}], null, 500)
-    .then(function(txt) { contenido.textContent = txt; })
-    .catch(function() { contenido.textContent = 'Error al generar.'; });
-}
+  reader.readAsDataURL(file);
+});
+document.getElementById('btn-borrar-foto').addEventListener('click', e => {
+  e.stopPropagation(); fotoBase64=null;
+  document.getElementById('foto-preview').classList.add('hidden');
+  document.getElementById('btn-borrar-foto').classList.add('hidden');
+  document.getElementById('foto-placeholder').classList.remove('hidden');
+  document.getElementById('input-camara').value='';
+});
 
-function copiarModalSug() {
-  navigator.clipboard.writeText(document.getElementById('modal-sug-texto').textContent)
-    .then(function() { alert('Copiado!'); document.getElementById('modal-sug').classList.add('hidden'); });
-}
+// Analizar IA
+document.getElementById('btn-ia').addEventListener('click', async () => {
+  const barrio=document.getElementById('barrio').value;
+  const cat=document.getElementById('categoria').value;
+  const desc=document.getElementById('descripcion').value;
+  if(!barrio||!cat||!desc){alert('Rellena barrio, categoría y descripción primero.');return;}
+  const btn=document.getElementById('btn-ia');btn.disabled=true;
+  document.getElementById('ia-icono').innerHTML='<span class="spinner"></span>';
+  document.getElementById('ia-resultado').classList.remove('hidden');
+  document.getElementById('ia-texto').textContent='Analizando...';
+  try{
+    const res=await fetch(WORKER,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,
+        messages:[{role:'user',content:'Queja vecinal Galdar — Barrio: '+barrio+', Categoria: '+cat+', Descripcion: "'+desc+'". Responde SOLO JSON: {"urgencia":"alta/media/baja","resumen":"1 frase","accion_pleno":"pregunta concreta"}'}]})});
+    const data=await res.json();
+    const json=JSON.parse(data.content[0].text.replace(/```json|```/g,'').trim());
+    const col=json.urgencia==='alta'?'#E24B4A':json.urgencia==='media'?'#E8650A':'#3B6D11';
+    document.getElementById('ia-texto').innerHTML='<div style="margin-bottom:6px"><span class="urgencia-badge" style="background:'+col+'20;color:'+col+'">URGENCIA '+json.urgencia.toUpperCase()+'</span></div><div style="margin-bottom:8px;font-size:13px">'+json.resumen+'</div><div style="font-size:12px;color:#555;border-top:1px solid #dde;padding-top:8px"><strong>Para el pleno:</strong> '+json.accion_pleno+'</div>';
+  }catch(e){document.getElementById('ia-texto').textContent='Error al conectar.';}
+  btn.disabled=false;document.getElementById('ia-icono').textContent='✦';
+});
 
-function renderQuejas() {
-  document.getElementById('st-total').textContent = quejasCache.length;
-  document.getElementById('st-nuevas').textContent = quejasCache.filter(function(q){return q.estado==='nueva';}).length;
-  document.getElementById('st-pleno').textContent = quejasCache.filter(function(q){return q.estado==='pleno';}).length;
-  document.getElementById('st-resueltas').textContent = quejasCache.filter(function(q){return q.estado==='resuelta';}).length;
-  var filtradas = filtroActual==='todas' ? quejasCache : quejasCache.filter(function(q){return q.estado===filtroActual;});
-  var lista = document.getElementById('lista-quejas');
-  if (!filtradas.length) { lista.innerHTML='<p class="sin-quejas">No hay quejas en esta categoria</p>'; return; }
-  lista.innerHTML = filtradas.map(function(q) {
-    var fecha = q.fecha&&q.fecha.toDate ? q.fecha.toDate().toLocaleDateString('es-ES',{day:'numeric',month:'short',year:'numeric'}) : (q.fechaTexto||'');
-    var desc = (q.descripcion||'').replace(/"/g,"'");
-    return '<div class="queja-card">' +
-      '<div class="queja-header"><span class="queja-cat">'+(q.categoria||'')+'</span><span class="queja-fecha">'+fecha+'</span></div>' +
-      '<div class="queja-barrio">'+(q.barrio||'')+'</div>' +
-      '<div class="queja-texto">'+(q.descripcion||'')+'</div>' +
-      '<div class="queja-nombre">'+(q.nombre||'Anonimo')+'</div>' +
-      (q.foto?'<img src="'+q.foto+'" class="queja-foto" alt="Foto">':'') +
-      '<span class="queja-estado estado-'+q.estado+'">'+(q.estado==='nueva'?'Nueva':q.estado==='pleno'?'Para pleno':'Resuelta')+'</span>' +
-      (q.estado==='nueva'?'<button class="btn-accion" onclick="generarPost(\''+q.id+'\',\''+q.barrio+'\',\''+q.categoria+'\',\''+desc+'\')">Post Facebook</button><button class="btn-accion verde" onclick="cambiarEstado(\''+q.id+'\',\'pleno\')">Para pleno</button>':'') +
-      (q.estado==='pleno'?'<button class="btn-accion" onclick="generarPost(\''+q.id+'\',\''+q.barrio+'\',\''+q.categoria+'\',\''+desc+'\')">Post Facebook</button><button class="btn-accion verde" onclick="cambiarEstado(\''+q.id+'\',\'resuelta\')">Resuelta</button>':'') +
-      '</div>';
-  }).join('');
-}
+// Enviar queja
+document.getElementById('btn-enviar-queja').addEventListener('click', async () => {
+  const barrio=document.getElementById('barrio').value;
+  const cat=document.getElementById('categoria').value;
+  const desc=document.getElementById('descripcion').value.trim();
+  if(!barrio){document.getElementById('barrio-error').style.display='block';return;}
+  if(!cat||!desc){alert('Por favor rellena categoría y descripción.');return;}
+  const nombre=document.getElementById('nombre').value.trim()||'Anónimo';
+  try{
+    const docData={nombre,barrio,categoria:cat,descripcion:desc,
+      fechaTexto:new Date().toLocaleDateString('es-ES',{day:'numeric',month:'short',year:'numeric'}),
+      fecha:new Date(),estado:'nueva'};
+    if(fotoBase64)docData.foto=fotoBase64;
+    await addDoc(collection(db,'quejas'),docData);
+    await tg('🔔','Nueva queja',barrio,nombre,desc);
+    document.getElementById('formulario').classList.add('hidden');
+    document.getElementById('enviada-ok').classList.remove('hidden');
+  }catch(e){alert('Error al enviar. Comprueba tu conexión.');}
+});
 
-function filtrar(estado,btn) {
-  filtroActual=estado;
-  document.querySelectorAll('.filtro').forEach(function(f){f.classList.remove('active');});
-  btn.classList.add('active');
-  renderQuejas();
-}
-
-function cambiarEstado(id,estado) { db.collection("quejas").doc(id).update({estado:estado}); }
-
-function llamarIA(messages,system,maxTokens) {
-  var body={model:'claude-sonnet-4-20250514',max_tokens:maxTokens||600,messages:messages};
-  if(system)body.system=system;
-  return fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
-    .then(function(r){return r.json();})
-    .then(function(d){return d.content[0].text;});
-}
-
-function generarPost(id,barrio,categoria,descripcion) {
-  document.getElementById('modal-post-texto').textContent='Generando...';
-  document.getElementById('modal-post').classList.remove('hidden');
-  llamarIA([{role:'user',content:'Post Facebook para Jose Blas, concejal UxGC Galdar. Queja: '+barrio+', '+categoria+': "'+descripcion+'". Tono cercano, 3-4 frases, #Galdar #UnidosPorGranCanaria. Solo el texto.'}],null,400)
-    .then(function(texto){document.getElementById('modal-post-texto').textContent=texto;})
-    .catch(function(){document.getElementById('modal-post-texto').textContent='Error.';});
-}
-
-function copiarPostModal() {
-  navigator.clipboard.writeText(document.getElementById('modal-post-texto').textContent)
-    .then(function(){alert('Copiado!');document.getElementById('modal-post').classList.add('hidden');});
-}
-
-function renderInteligencia() {
-  var total=quejasCache.length;
-  var porBarrio={},porCat={},porMes={},sondeo={si:0,talvez:0,no:0};
-  quejasCache.forEach(function(q){
-    if(q.barrio)porBarrio[q.barrio]=(porBarrio[q.barrio]||0)+1;
-    if(q.categoria)porCat[q.categoria]=(porCat[q.categoria]||0)+1;
-    if(q.fecha&&q.fecha.toDate){var m=q.fecha.toDate().toLocaleDateString('es-ES',{month:'short',year:'numeric'});porMes[m]=(porMes[m]||0)+1;}
-    if(q.sondeo==='si')sondeo.si++;else if(q.sondeo==='talvez')sondeo.talvez++;else if(q.sondeo==='no')sondeo.no++;
-  });
-  var barriosOrden=Object.entries(porBarrio).sort(function(a,b){return b[1]-a[1];});
-  var maxQ=barriosOrden.length?barriosOrden[0][1]:1;
-  var barrios=Object.keys(porBarrio).length;
-  var votoPot=total>0?Math.min(Math.round(total*2.8+barrios*3),65):0;
-  var totalSondeo=sondeo.si+sondeo.talvez+sondeo.no;
-  var pctSi=totalSondeo>0?Math.round(sondeo.si/totalSondeo*100):0;
-  document.getElementById('intel-total').textContent=total;
-  document.getElementById('intel-barrios').textContent=barrios;
-  document.getElementById('intel-voto').textContent=total>0?votoPot+'%':'-';
-  document.getElementById('intel-sondeo').textContent=totalSondeo>0?pctSi+'%':'-';
-
-  // MAPA
-  actualizarMapa(porBarrio, maxQ);
-  renderZonaResumen(porBarrio);
-
-  // TENDENCIA
-  var meses=Object.keys(porMes),valsMes=Object.values(porMes);
-  if(chartTend)chartTend.destroy();
-  var ctxT=document.getElementById('chart-tendencia');
-  if(meses.length){chartTend=new Chart(ctxT,{type:'line',data:{labels:meses,datasets:[{data:valsMes,borderColor:'#1A3A6B',backgroundColor:'rgba(26,58,107,0.08)',borderWidth:2,pointBackgroundColor:'#1A3A6B',pointRadius:5,tension:0.3,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:11},color:'#888'},grid:{display:false}},y:{ticks:{font:{size:11},color:'#888',stepSize:1},beginAtZero:true}}}});}
-  else{ctxT.parentElement.innerHTML='<p class="sin-quejas">Sin datos</p>';}
-
-  // CATEGORIAS
-  var catL=Object.keys(porCat).sort(function(a,b){return porCat[b]-porCat[a];}),catV=catL.map(function(c){return porCat[c];});
-  var catColors=['#E24B4A','#E8650A','#F5C800','#1A3A6B','#3B6D11','#C5D3EE','#888'];
-  var catWrap=document.getElementById('chart-cat-wrap');catWrap.style.height=Math.max(catL.length*36+40,100)+'px';
-  if(chartCat)chartCat.destroy();
-  if(catL.length){chartCat=new Chart(document.getElementById('chart-cat'),{type:'bar',data:{labels:catL,datasets:[{data:catV,backgroundColor:catColors.slice(0,catL.length)}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:11},color:'#888'},beginAtZero:true},y:{ticks:{font:{size:11},color:'#888'},grid:{display:false}}}}});}
-  else{catWrap.innerHTML='<p class="sin-quejas">Sin datos</p>';}
-
-  // VOTO POTENCIAL
-  var votoList=document.getElementById('voto-list');votoList.innerHTML='';
-  if(!barriosOrden.length){votoList.innerHTML='<p class="sin-quejas">Sin datos</p>';}
-  else{barriosOrden.forEach(function(e){var b=e[0],n=e[1];var pot=Math.min(Math.round(n/maxQ*75+15),85);var niv=pot>=55?'alto':pot>=35?'medio':'bajo';var bc=niv==='alto'?'badge-alto':niv==='medio'?'badge-medio':'badge-bajo';var bt=niv==='alto'?'Potencial alto':niv==='medio'?'Potencial medio':'Potencial bajo';var col=niv==='alto'?'#3B6D11':niv==='medio'?'#E8650A':'#C5D3EE';votoList.innerHTML+='<div class="voto-card"><div class="voto-header"><span class="voto-barrio">'+b+'</span><span class="voto-badge '+bc+'">'+bt+'</span></div><div class="voto-bar-wrap"><div class="voto-bar" style="width:'+pot+'%;background:'+col+'"></div></div><div class="voto-footer"><span>'+n+' quejas</span><span style="font-weight:500;color:'+col+'">'+pot+'% est.</span></div></div>';});}
-
-  // SONDEO
-  var so=document.getElementById('sondeo-opts');so.innerHTML='';
-  if(totalSondeo>0){[{l:'Si, buena iniciativa',v:sondeo.si,c:'#3B6D11'},{l:'Esperare resultados',v:sondeo.talvez,c:'#E8650A'},{l:'Prefiero otro canal',v:sondeo.no,c:'#C5D3EE'}].forEach(function(o){var p=Math.round(o.v/totalSondeo*100);so.innerHTML+='<div class="sondeo-opt"><span class="sondeo-label">'+o.l+'</span><div class="sondeo-bar-wrap"><div class="sondeo-bar" style="width:'+p+'%;background:'+o.c+'"></div></div><span class="sondeo-pct">'+p+'%</span></div>';});document.getElementById('sondeo-total').textContent='Total: '+totalSondeo+' respuestas';}
-  else{so.innerHTML='<p class="sin-quejas">Sin respuestas aun</p>';}
-
-  // INSIGHTS
-  var il=document.getElementById('insights-list');il.innerHTML='';
-  if(!total){il.innerHTML='<p class="sin-quejas">Los analisis apareceran con las primeras quejas</p>';return;}
-  var topB=barriosOrden[0];var topCArr=Object.entries(porCat).sort(function(a,b){return b[1]-a[1];});var topC=topCArr[0];
-  [{t:'ZONA PRIORITARIA',x:'<b>'+topB[0]+'</b> concentra el '+Math.round(topB[1]/total*100)+'% de las quejas. Visita recomendada esta semana.'},{t:'PROPUESTA ESTRELLA',x:'<b>'+topC[0]+'</b> es el problema mas repetido. Llevarlo al pleno con datos y fotos.'},{t:'TENDENCIA',x:total>10?'Con <b>'+total+' quejas</b> y <b>'+barrios+' barrios</b> activos, el sistema genera impacto real.':'Con <b>'+total+' quejas</b> iniciales. Difunde el QR en los barrios para acelerar.'},{t:'ESTIMACION 2027',x:'Voto potencial estimado: <b>'+votoPot+'%</b>. Con trabajo constante, 3-4 concejales son alcanzables.'}].forEach(function(i){il.innerHTML+='<div class="ia-insight"><div class="ia-insight-label">'+i.t+'</div><div class="ia-insight-text">'+i.x+'</div></div>';});
-}
-
-function generarAnalisisCompleto() {
-  var btn=document.getElementById('ia-analisis-icono');
-  var res=document.getElementById('analisis-resultado');
-  btn.textContent='...';res.classList.remove('hidden');res.textContent='Generando analisis...';
-  var total=quejasCache.length;var porBarrio={},porCat={};
-  quejasCache.forEach(function(q){if(q.barrio)porBarrio[q.barrio]=(porBarrio[q.barrio]||0)+1;if(q.categoria)porCat[q.categoria]=(porCat[q.categoria]||0)+1;});
-  var topB=Object.entries(porBarrio).sort(function(a,b){return b[1]-a[1];})[0];
-  var topC=Object.entries(porCat).sort(function(a,b){return b[1]-a[1];})[0];
-  var sugResumen=sugerenciasCache.slice(0,5).map(function(s){return s.barrio+': '+s.texto.substring(0,50);}).join(' | ');
-  llamarIA([{role:'user',content:'Eres asesor politico. Analiza datos de Jose Blas Diaz Bolanos (concejal UxGC, oposicion en Galdar): Total quejas: '+total+', Barrio top: '+(topB?topB[0]+' ('+topB[1]+')':'sin datos')+', Categoria top: '+(topC?topC[0]+' ('+topC[1]+')':'sin datos')+', Barrios: '+Object.keys(porBarrio).join(', ')+'. Sugerencias: '+(sugResumen||'sin datos')+'. Dame 4-5 recomendaciones estrategicas para 2027. Responde directo en espanol.'}],null,600)
-    .then(function(texto){res.innerHTML=texto.split('\n').join('<br>');})
-    .catch(function(){res.textContent='Error al conectar.';});
-  btn.textContent='+';
-}
-
-function preguntaRapida(texto){document.getElementById('asesor-input').value=texto;enviarAsesor();}
-
-function enviarAsesor() {
-  var input=document.getElementById('asesor-input');
-  var texto=input.value.trim();if(!texto)return;
-  input.value='';
-  var chat=document.getElementById('asesor-chat');
-  var sendBtn=document.getElementById('asesor-send');
-  sendBtn.disabled=true;
-  chat.innerHTML+='<div class="msg-user"><div class="msg-bubble-user">'+texto+'</div></div>';
-  var loadId='load-'+Date.now();
-  chat.innerHTML+='<div class="msg-ia" id="'+loadId+'"><div class="msg-avatar">IA</div><div class="msg-bubble-ia">Pensando...</div></div>';
-  chat.scrollTop=chat.scrollHeight;
-  var total=quejasCache.length;var porBarrio={},porCat={};
-  quejasCache.forEach(function(q){if(q.barrio)porBarrio[q.barrio]=(porBarrio[q.barrio]||0)+1;if(q.categoria)porCat[q.categoria]=(porCat[q.categoria]||0)+1;});
-  var topB=Object.entries(porBarrio).sort(function(a,b){return b[1]-a[1];})[0];
-  var topC=Object.entries(porCat).sort(function(a,b){return b[1]-a[1];})[0];
-  var sugTextos=sugerenciasCache.slice(0,5).map(function(s){return s.barrio+': '+s.texto.substring(0,60);}).join(' | ');
-  var system='Eres el asesor politico personal de Jose Blas Diaz Bolanos, concejal de Unidos por Gran Canaria (UxGC) en Galdar, Gran Canaria. El alcalde del PP lleva desde 2007 con mayoria absoluta. Jose Blas es el unico concejal de UxGC. Objetivo: crecer de 1 a 3-4 concejales en 2027.'+
-'CONOCIMIENTO DE GALDAR: Municipio historico del norte de Gran Canaria, 24.000 hab., 61 km2. Barrios: Costa (Puerto de Sardina, El Agujero, La Guancha), Urbana (Galdar Casco, San Isidro, Barrial, Marmolejos, Los Quintanas), Medianias (Hoya de Pineda, Saucillo, Juncalillo), Cumbre (Caideros, Fagajesto).'+
-'PROBLEMAS TRANSVERSALES: contenedores, alumbrado, aceras, baches, parques, senalizacion, ruidos, poda, olores, aparcamiento.'+
-'ZONAS PRIORITARIAS: Costa y Casco (prioridad alta). Cumbre (mas aislada, problemas de suministros y accesos).'+
-'DATOS APP EN TIEMPO REAL: '+total+' quejas registradas, barrio top: '+(topB?topB[0]:'sin datos')+', categoria top: '+(topC?topC[0]:'sin datos')+'. Sugerencias vecinos: '+(sugTextos||'sin datos')+'.'+
-'Responde siempre en espanol, directo y practico. Usa los datos reales de la app para dar argumentos concretos.';
-  historialChat.push({role:'user',content:texto});
-  if(historialChat.length>10)historialChat=historialChat.slice(-10);
-  llamarIA(historialChat,system,800)
-    .then(function(respuesta){
-      historialChat.push({role:'assistant',content:respuesta});
-      var loadEl=document.getElementById(loadId);
-      if(loadEl)loadEl.outerHTML='<div class="msg-ia"><div class="msg-avatar">IA</div><div class="msg-bubble-ia">'+respuesta.split('\n').join('<br>')+'</div></div>';
-      chat.scrollTop=chat.scrollHeight;sendBtn.disabled=false;
-    })
-    .catch(function(){
-      var loadEl=document.getElementById(loadId);
-      if(loadEl)loadEl.outerHTML='<div class="msg-ia"><div class="msg-avatar">IA</div><div class="msg-bubble-ia">Error al conectar. Intentalo de nuevo.</div></div>';
-      sendBtn.disabled=false;
+// Enviar sugerencia
+document.getElementById('btn-enviar-sug').addEventListener('click', async () => {
+  const barrio=document.getElementById('sug-barrio').value;
+  const texto=document.getElementById('sug-texto').value.trim();
+  if(!barrio||!texto){alert('Por favor selecciona tu barrio y escribe la sugerencia.');return;}
+  const nombre=document.getElementById('sug-nombre').value.trim()||'Anónimo';
+  try{
+    await addDoc(collection(db,'sugerencias'),{
+      nombre,barrio,texto,
+      fechaTexto:new Date().toLocaleDateString('es-ES',{day:'numeric',month:'short',year:'numeric'}),
+      fecha:new Date()
     });
-}
+    await tg('💡','Nueva sugerencia',barrio,nombre,texto);
+    document.getElementById('formulario').classList.add('hidden');
+    document.getElementById('enviada-sug-ok').classList.remove('hidden');
+  }catch(e){alert('Error al enviar. Comprueba tu conexión.');}
+});
 
-if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
+// Reset
+function resetear(){
+  ['formulario'].forEach(id=>document.getElementById(id).classList.remove('hidden'));
+  ['enviada-ok','enviada-sug-ok','ia-resultado'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+  document.getElementById('form-sug').style.display='none';
+  ['nombre','categoria','descripcion','sug-nombre','sug-texto'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('barrio').value='';document.getElementById('sug-barrio').value='';
+  document.querySelectorAll('.barrio-btn').forEach(b=>{b.style.background='#fff';b.style.color='#555';b.style.borderColor='#ddd';});
+  document.getElementById('barrio-error').style.display='none';
+  fotoBase64=null;
+  document.getElementById('foto-preview').classList.add('hidden');
+  document.getElementById('btn-borrar-foto').classList.add('hidden');
+  document.getElementById('foto-placeholder').classList.remove('hidden');
+}
+document.getElementById('btn-nueva-queja').addEventListener('click', resetear);
+document.getElementById('btn-volver-sug').addEventListener('click', resetear);
+
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
 </script>
 </body>
 </html>
