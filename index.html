@@ -208,6 +208,75 @@ var marcadores = [];
 var TELEGRAM_TOKEN = "8772067102:AAFNR2Txk6P9XxLZg9GZwunT4v1YcdNLEZY";
 var TELEGRAM_CHAT_ID = "8601457137";
 
+
+var barriosData = {
+  "Galdar Casco": {
+    prioridad: 3,
+    categorias: ["Aceras","Trafico","Residuos","Ruido","Alumbrado"],
+    problemas: ["Aceras estrechas o rotas","Contenedores llenos","Ruidos nocturnos","Falta de aparcamiento","Senalizacion borrada"]
+  },
+  "San Isidro": {
+    prioridad: 3,
+    categorias: ["Aceras","Alumbrado","Residuos","Parques","Trafico"],
+    problemas: ["Aceras sin rematar","Poca iluminacion en calles nuevas","Contenedores insuficientes","Parques deteriorados","Trafico en rotondas"]
+  },
+  "Barrial": {
+    prioridad: 2,
+    categorias: ["Asfalto","Residuos","Alumbrado","Ruido","Parques"],
+    problemas: ["Baches en calles","Contenedores saturados","Alumbrado irregular","Ruidos en zonas deportivas","Necesidad de poda"]
+  },
+  "Marmolejos": {
+    prioridad: 2,
+    categorias: ["Aceras","Alumbrado","Parques","Olores","Trafico"],
+    problemas: ["Aceras sin accesibilidad","Farolas antiguas","Parques con desgaste","Olores en alcantarillado","Velocidad excesiva"]
+  },
+  "Los Quintanas - Piso Firme": {
+    prioridad: 2,
+    categorias: ["Asfalto","Alumbrado","Seguridad","Parques"],
+    problemas: ["Calles con desgaste","Falta de pasos de peatones","Puntos de luz insuficientes","Inseguridad nocturna"]
+  },
+  "Puerto de Sardina": {
+    prioridad: 3,
+    categorias: ["Alumbrado","Playas","Residuos","Aparcamiento","Olores"],
+    problemas: ["Corrosion por salitre","Limpieza de playa","Aparcamiento saturado","Olores en bombeos","Barandillas deterioradas"]
+  },
+  "El Agujero": {
+    prioridad: 3,
+    categorias: ["Playas","Alumbrado","Residuos","Seguridad"],
+    problemas: ["Desgaste del paseo","Farolas corroidas","Basura en zonas rocosas","Oleaje peligroso sin senalizar"]
+  },
+  "La Guancha": {
+    prioridad: 2,
+    categorias: ["Alumbrado","Asfalto","Residuos"],
+    problemas: ["Iluminacion insuficiente","Pavimento deteriorado","Contenedores mal ubicados"]
+  },
+  "Hoya de Pineda": {
+    prioridad: 2,
+    categorias: ["Carreteras","Alumbrado","Transporte","Agua"],
+    problemas: ["Desprendimientos","Calles poco iluminadas","Transporte limitado","Baja presion de agua"]
+  },
+  "Saucillo": {
+    prioridad: 2,
+    categorias: ["Carreteras","Alumbrado","Residuos","Agua"],
+    problemas: ["Caminos rurales deteriorados","Alumbrado escaso","Contenedores alejados","Cortes de agua"]
+  },
+  "Juncalillo": {
+    prioridad: 2,
+    categorias: ["Carreteras","Transporte","Alumbrado"],
+    problemas: ["Taludes inestables","Pocas conexiones de guagua","Iluminacion debil"]
+  },
+  "Caideros": {
+    prioridad: 1,
+    categorias: ["Carreteras","Electricidad","Agua","Cobertura"],
+    problemas: ["Carreteras estrechas","Caidas de luz","Problemas de abastecimiento","Zonas sin cobertura movil"]
+  },
+  "Fagajesto": {
+    prioridad: 1,
+    categorias: ["Carreteras","Electricidad","Agua"],
+    problemas: ["Accesos complicados","Lineas electricas vulnerables","Falta de presion de agua"]
+  }
+};
+
 var barriosGaldar = [
   { nombre: "Puerto de Sardina", zona: "Costa", lat: 28.153, lng: -15.686 },
   { nombre: "El Agujero", zona: "Costa", lat: 28.148, lng: -15.700 },
@@ -343,11 +412,22 @@ function actualizarMapa(porBarrio, maxQ) {
       fillOpacity: 0.85
     }).addTo(mapaLeaflet);
 
-    var popupHTML = '<div class="popup-barrio">' +
+    // Get barrio specific data - try different name formats
+    var nombreKey = b.nombre.replace('Gáldar', 'Galdar').replace('á','a').replace('é','e').replace('í','i').replace('ó','o').replace('ú','u').replace('ñ','n');
+    var bData = barriosData[b.nombre] || barriosData[nombreKey] || null;
+    var prioridadColor = bData ? (bData.prioridad===3?'#E24B4A':bData.prioridad===2?'#E8650A':'#888') : '#888';
+    var prioridadTexto = bData ? (bData.prioridad===3?'PRIORIDAD ALTA':bData.prioridad===2?'PRIORIDAD MEDIA':'PRIORIDAD BAJA') : '';
+    var categoriasHTML = bData ? bData.categorias.map(function(c){return '<span style="display:inline-block;background:#1A3A6B20;color:#1A3A6B;border-radius:10px;padding:2px 7px;font-size:10px;margin:2px;font-weight:600">'+c+'</span>';}).join('') : '';
+    var problemasHTML = bData ? bData.problemas.map(function(p){return '<div style="font-size:10px;color:#555;padding:2px 0">• '+p+'</div>';}).join('') : '';
+
+    var popupHTML = '<div class="popup-barrio" style="min-width:200px">' +
       '<h4>' + zona.icono + ' ' + b.nombre + '</h4>' +
-      '<div class="popup-num">' + n + '</div>' +
-      '<div class="popup-lbl">queja' + (n !== 1 ? 's' : '') + ' registrada' + (n !== 1 ? 's' : '') + '</div>' +
-      '<div style="margin-top:6px;font-size:11px;color:' + zona.color + ';font-weight:600">' + b.zona + '</div>' +
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">' +
+        '<div><span class="popup-num">' + n + '</span><span class="popup-lbl"> queja' + (n!==1?'s':'') + '</span></div>' +
+        (bData ? '<span style="background:'+prioridadColor+'20;color:'+prioridadColor+';font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px">'+prioridadTexto+'</span>' : '') +
+      '</div>' +
+      (categoriasHTML ? '<div style="margin-bottom:6px"><div style="font-size:10px;font-weight:700;color:#888;margin-bottom:4px">CATEGORIAS FRECUENTES</div>' + categoriasHTML + '</div>' : '') +
+      (problemasHTML ? '<div style="border-top:1px solid #eee;padding-top:6px"><div style="font-size:10px;font-weight:700;color:#888;margin-bottom:4px">PROBLEMAS TIPICOS</div>' + problemasHTML + '</div>' : '') +
       '</div>';
 
     circle.bindPopup(popupHTML);
