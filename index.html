@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Gáldar — Panel Concejal</title>
+<meta name="theme-color" content="#1a5276">
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --azul: #1a5276;
+  --azul-claro: #2e86c1;
+  --verde: #1e8449;
+  --rojo: #c0392b;
+  --naranja: #e67e22;
+  --amarillo: #f39c12;
+  --gris: #f0f3f4;
+  --texto: #2c3e50;
+  --sombra: 0 2px 12px rgba(0,0,0,0.12);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', sans-serif; background: var(--gris); color: var(--texto); min-height: 100vh; }
+
+/* ── LOGIN ── */
+#loginScreen {
+  min-height: 100vh; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  background: linear-gradient(135deg, #0d2137, #1a5276, #2e86c1);
+  padding: 30px 20px;
+}
+.login-logo { font-size: 64px; margin-bottom: 10px; }
+.login-titulo { color: white; font-size: 22px; font-weight: 800; text-align: center; }
+.login-sub { color: rgba(255,255,255,0.7); font-size: 13px; margin-top: 4px; text-align: center; }
+.login-card {
+  background: white; border-radius: 16px; padding: 28px 24px;
+  width: 100%; max-width: 360px; margin-top: 28px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+.login-card h2 { font-size: 16px; color: var(--azul); margin-bottom: 20px; text-align: center; }
+.login-card input {
+  width: 100%; padding: 13px 15px; border: 1.5px solid #d0d7de;
+  border-radius: 8px; font-size: 15px; margin-bottom: 12px; font-family: inherit;
+}
+.login-card input:focus { outline: none; border-color: var(--azul-claro); }
+.btn-login {
+  width: 100%; padding: 14px; background: linear-gradient(135deg, var(--azul), var(--azul-claro));
+  color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: transform 0.1s;
+}
+.btn-login:active { transform: scale(0.98); }
+.login-error { color: var(--rojo); font-size: 13px; text-align: center; margin-top: 8px; display: none; }
+.login-badge {
+  background: rgba(255,255,255,0.12); color: white; border-radius: 20px;
+  padding: 6px 16px; font-size: 12px; margin-top: 14px; text-align: center;
+}
+
+/* ── CABECERA PANEL ── */
+#app { display: none; }
+header {
+  background: linear-gradient(135deg, var(--azul), var(--azul-claro));
+  color: white; padding: 14px 18px;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: var(--sombra); position: sticky; top: 0; z-index: 100;
+}
+.header-left { display: flex; align-items: center; gap: 12px; }
+.header-left h1 { font-size: 16px; font-weight: 700; }
+.header-left p { font-size: 11px; opacity: 0.8; }
+.btn-logout {
+  background: rgba(255,255,255,0.2); border: none; color: white;
+  border-radius: 8px; padding: 7px 12px; cursor: pointer; font-size: 13px;
+}
+
+/* ── TABS ── */
+.tabs {
+  display: flex; background: white;
+  border-bottom: 3px solid var(--azul-claro);
+  overflow-x: auto; position: sticky; top: 62px; z-index: 90;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+.tab-btn {
+  flex: 1; min-width: 80px; padding: 11px 6px;
+  border: none; background: none; cursor: pointer;
+  font-size: 10px; font-weight: 600; color: #666;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  transition: all 0.2s; border-bottom: 3px solid transparent; margin-bottom: -3px;
+}
+.tab-btn i { font-size: 17px; }
+.tab-btn.active { color: var(--azul-claro); border-bottom-color: var(--azul-claro); }
+.badge {
+  background: var(--rojo); color: white; border-radius: 10px;
+  padding: 1px 6px; font-size: 9px; font-weight: 700; margin-top: 1px;
+}
+
+/* ── CONTENIDO ── */
+.tab-content { display: none; padding: 14px; max-width: 700px; margin: 0 auto; }
+.tab-content.active { display: block; padding-bottom: 30px; }
+
+/* ── STATS SUPERIORES ── */
+.stats-top {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px;
+}
+.stat-box {
+  background: white; border-radius: 10px; padding: 14px; text-align: center;
+  box-shadow: var(--sombra);
+}
+.stat-num { font-size: 26px; font-weight: 800; }
+.stat-label { font-size: 11px; color: #666; margin-top: 2px; }
+.stat-box.pendiente .stat-num { color: var(--naranja); }
+.stat-box.total .stat-num { color: var(--azul-claro); }
+.stat-box.resuelto .stat-num { color: var(--verde); }
+.stat-box.urgente .stat-num { color: var(--rojo); }
+
+/* ── FILTROS ── */
+.filtros {
+  background: white; border-radius: 10px; padding: 12px 14px;
+  box-shadow: var(--sombra); margin-bottom: 14px;
+  display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+}
+.filtros select, .filtros input {
+  padding: 8px 10px; border: 1.5px solid #d0d7de; border-radius: 7px;
+  font-size: 13px; background: white; font-family: inherit;
+}
+.filtros select:focus, .filtros input:focus { outline: none; border-color: var(--azul-claro); }
+
+/* ── TARJETA QUEJA ── */
+.queja-card {
+  background: white; border-radius: 10px; padding: 14px;
+  box-shadow: var(--sombra); margin-bottom: 10px;
+  border-left: 4px solid var(--azul-claro); cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.queja-card:active { transform: scale(0.99); }
+.queja-card.muy_urgente { border-left-color: var(--rojo); }
+.queja-card.urgente { border-left-color: var(--naranja); }
+.queja-card.resuelto { border-left-color: var(--verde); opacity: 0.7; }
+.queja-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.queja-barrio { font-weight: 700; font-size: 14px; color: var(--azul); }
+.queja-cat { font-size: 12px; color: #666; margin-top: 2px; }
+.queja-desc { font-size: 13px; margin: 8px 0; line-height: 1.4; color: #444; }
+.queja-meta { font-size: 11px; color: #999; display: flex; gap: 12px; flex-wrap: wrap; }
+.badge-estado {
+  display: inline-block; padding: 3px 10px; border-radius: 12px;
+  font-size: 11px; font-weight: 700; flex-shrink: 0;
+}
+.badge-pendiente { background: #fef9e7; color: #7d6608; }
+.badge-proceso { background: #e8f4fd; color: #1a5276; }
+.badge-resuelto { background: #eafaf1; color: #1e8449; }
+.badge-descartado { background: #f5f5f5; color: #888; }
+.badge-urgente { background: #fef0e6; color: #c0392b; }
+.badge-muy_urgente { background: #fdecea; color: #c0392b; font-weight: 800; }
+
+/* ── ACCIONES QUEJA ── */
+.queja-acciones {
+  display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px;
+  border-top: 1px solid #f0f0f0; padding-top: 10px;
+}
+.btn-accion {
+  padding: 6px 12px; border: none; border-radius: 6px;
+  font-size: 12px; font-weight: 600; cursor: pointer; transition: transform 0.1s;
+  display: flex; align-items: center; gap: 5px;
+}
+.btn-accion:active { transform: scale(0.97); }
+.btn-proceso { background: #e8f4fd; color: var(--azul-claro); }
+.btn-resuelto { background: #eafaf1; color: var(--verde); }
+.btn-descartar { background: #f5f5f5; color: #888; }
+.btn-ia { background: linear-gradient(135deg, #8e44ad, #9b59b6); color: white; }
+.btn-whatsapp { background: #25d366; color: white; }
+
+/* ── PANEL IA ── */
+.ia-panel {
+  background: linear-gradient(135deg, #f4eefb, #e8e0f5);
+  border: 1.5px solid #c39bd3; border-radius: 10px;
+  padding: 14px; margin-top: 10px; display: none;
+}
+.ia-panel h4 { color: #6c3483; font-size: 13px; margin-bottom: 8px; }
+.ia-resp { font-size: 13px; line-height: 1.6; color: var(--texto); white-space: pre-wrap; }
+.ia-loading { text-align: center; color: #9b59b6; font-size: 13px; padding: 10px; }
+
+/* ── GENERADOR POSTS ── */
+.post-card {
+  background: white; border-radius: 10px; padding: 16px;
+  box-shadow: var(--sombra); margin-bottom: 14px;
+}
+.post-card h3 { font-size: 15px; color: var(--azul); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.post-resultado {
+  background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 8px;
+  padding: 14px; font-size: 13px; line-height: 1.6; white-space: pre-wrap;
+  min-height: 60px; margin-top: 10px; display: none;
+}
+.btn-copiar {
+  background: var(--azul-claro); color: white; border: none;
+  border-radius: 6px; padding: 8px 14px; font-size: 13px; cursor: pointer;
+  margin-top: 8px; display: none; align-items: center; gap: 6px;
+}
+.btn-fb {
+  background: #1877f2; color: white; border: none;
+  border-radius: 6px; padding: 8px 14px; font-size: 13px; cursor: pointer;
+  margin-top: 8px; margin-left: 8px; display: none; align-items: center; gap: 6px;
+}
+.btn-generar {
+  width: 100%; padding: 12px; background: linear-gradient(135deg, #8e44ad, #9b59b6);
+  color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin-top: 10px;
+}
+select, textarea, input[type=text] {
+  width: 100%; padding: 10px 12px; border: 1.5px solid #d0d7de;
+  border-radius: 8px; font-size: 13px; font-family: inherit;
+  margin-top: 4px;
+}
+select:focus, textarea:focus, input:focus { outline: none; border-color: var(--azul-claro); }
+label { font-size: 12px; font-weight: 600; color: var(--texto); display: block; margin-bottom: 3px; margin-top: 10px; }
+
+/* ── MAPA ── */
+#mapaPanel { width: 100%; height: 360px; border-radius: 10px; overflow: hidden; }
+
+/* ── IDEAS PANEL ── */
+.idea-item {
+  background: white; border-radius: 8px; padding: 13px;
+  box-shadow: var(--sombra); margin-bottom: 8px;
+  border-left: 3px solid var(--azul-claro);
+}
+.idea-pleno { border-left-color: var(--naranja); }
+
+/* ── ASESOR IA ── */
+.chat-msg {
+  display: flex; gap: 10px; margin-bottom: 12px;
+}
+.chat-msg.ia { flex-direction: row; }
+.chat-msg.user { flex-direction: row-reverse; }
+.chat-burbuja {
+  max-width: 80%; padding: 10px 14px; border-radius: 12px;
+  font-size: 13px; line-height: 1.5;
+}
+.chat-msg.ia .chat-burbuja { background: #f0e8fc; color: var(--texto); border-bottom-left-radius: 4px; }
+.chat-msg.user .chat-burbuja { background: var(--azul-claro); color: white; border-bottom-right-radius: 4px; }
+.chat-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.chat-ia-av { background: #e8d5f5; }
+.chat-user-av { background: var(--azul-claro); color: white; }
+#chatInput { resize: none; min-height: 44px; }
+#chatMsgs { min-height: 200px; max-height: 400px; overflow-y: auto; padding: 4px; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  background: #2c3e50; color: white; padding: 11px 22px; border-radius: 25px;
+  font-size: 13px; font-weight: 600; z-index: 999; display: none;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+}
+
+/* ── SPINNER ── */
+.spinner { text-align: center; padding: 30px; color: #aaa; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════ LOGIN ══════════════════════════════ -->
+<div id="loginScreen">
+  <div class="login-logo">🏛️</div>
+  <div class="login-titulo">Panel Concejal</div>
+  <div class="login-sub">Gáldar · Unidos por Gran Canaria</div>
+
+  <div class="login-card">
+    <h2>🔐 Acceso Restringido</h2>
+    <input type="text" id="loginUser" placeholder="Usuario" autocomplete="username">
+    <input type="password" id="loginPass" placeholder="Contraseña" autocomplete="current-password"
+           onkeypress="if(event.key==='Enter')doLogin()">
+    <button class="btn-login" onclick="doLogin()">
+      <i class="fas fa-sign-in-alt"></i> Entrar al panel
+    </button>
+    <div class="login-error" id="loginError">Usuario o contraseña incorrectos</div>
+  </div>
+
+  <div class="login-badge">
+    👨‍💼 José Blas Díaz Bolaños · Concejal UxGC
+  </div>
+</div>
+
+<!-- ══════════════════════════════ APP ══════════════════════════════ -->
+<div id="app">
+  <header>
+    <div class="header-left">
+      <span style="font-size:28px">🏛️</span>
+      <div>
+        <h1>Panel Concejal — Gáldar</h1>
+        <p>José Blas Díaz Bolaños · UxGC</p>
+      </div>
+    </div>
+    <button class="btn-logout" onclick="logout()">
+      <i class="fas fa-sign-out-alt"></i>
+    </button>
+  </header>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="tab('quejas')" id="tb-quejas">
+      <i class="fas fa-exclamation-triangle"></i>Quejas
+      <span class="badge" id="badgeQuejas">0</span>
+    </button>
+    <button class="tab-btn" onclick="tab('mapa')" id="tb-mapa">
+      <i class="fas fa-map-marked-alt"></i>Mapa
+    </button>
+    <button class="tab-btn" onclick="tab('posts')" id="tb-posts">
+      <i class="fab fa-facebook"></i>Posts IA
+    </button>
+    <button class="tab-btn" onclick="tab('ideas')" id="tb-ideas">
+      <i class="fas fa-lightbulb"></i>Ideas
+      <span class="badge" id="badgeIdeas" style="display:none">!</span>
+    </button>
+    <button class="tab-btn" onclick="tab('asesor')" id="tb-asesor">
+      <i class="fas fa-robot"></i>Asesor IA
+    </button>
+  </div>
+
+  <!-- ═══ TAB QUEJAS ═══ -->
+  <div class="tab-content active" id="tab-quejas">
+    <div class="stats-top">
+      <div class="stat-box total"><div class="stat-num" id="stTotal">—</div><div class="stat-label">Total quejas</div></div>
+      <div class="stat-box pendiente"><div class="stat-num" id="stPendientes">—</div><div class="stat-label">Pendientes</div></div>
+      <div class="stat-box urgente"><div class="stat-num" id="stUrgentes">—</div><div class="stat-label">Urgentes</div></div>
+      <div class="stat-box resuelto"><div class="stat-num" id="stResueltas">—</div><div class="stat-label">Resueltas</div></div>
+    </div>
+
+    <div class="filtros">
+      <select id="filtroEstado" onchange="renderQuejas()">
+        <option value="">Todos los estados</option>
+        <option value="pendiente">⏳ Pendiente</option>
+        <option value="en_proceso">🔄 En proceso</option>
+        <option value="resuelto">✅ Resuelto</option>
+        <option value="descartado">❌ Descartado</option>
+      </select>
+      <select id="filtroCat" onchange="renderQuejas()">
+        <option value="">Todas las categorías</option>
+        <option value="limpieza">🗑️ Limpieza</option>
+        <option value="iluminacion">💡 Alumbrado</option>
+        <option value="vias">🛣️ Vías</option>
+        <option value="agua">💧 Agua</option>
+        <option value="zonas_verdes">🌳 Parques</option>
+        <option value="seguridad">🚨 Seguridad</option>
+        <option value="ruido">🔊 Ruido</option>
+        <option value="otros">📋 Otros</option>
+      </select>
+      <select id="filtroUrgencia" onchange="renderQuejas()">
+        <option value="">Toda urgencia</option>
+        <option value="muy_urgente">🔴 Muy urgente</option>
+        <option value="urgente">🟡 Urgente</option>
+        <option value="normal">⚪ Normal</option>
+      </select>
+    </div>
+
+    <div id="listaQuejas">
+      <div class="spinner"><i class="fas fa-spinner fa-spin"></i> Cargando quejas...</div>
+    </div>
+  </div>
+
+  <!-- ═══ TAB MAPA ═══ -->
+  <div class="tab-content" id="tab-mapa">
+    <div style="background:white;border-radius:10px;padding:14px;box-shadow:var(--sombra)">
+      <h3 style="color:var(--azul);font-size:14px;margin-bottom:10px"><i class="fas fa-fire"></i> Mapa de incidencias</h3>
+      <div id="mapaPanel"></div>
+    </div>
+  </div>
+
+  <!-- ═══ TAB POSTS IA ═══ -->
+  <div class="tab-content" id="tab-posts">
+    <div class="post-card">
+      <h3><i class="fab fa-facebook" style="color:#1877f2"></i> Generador de Posts para Facebook</h3>
+
+      <label>Tipo de post</label>
+      <select id="tipoPost">
+        <option value="gestion">✅ Gestión realizada</option>
+        <option value="queja">📢 Queja ciudadana resuelta</option>
+        <option value="propuesta">💡 Propuesta al pleno</option>
+        <option value="denuncia">🚨 Denuncia/irregularidad</option>
+        <option value="logro">🏆 Logro conseguido</option>
+        <option value="pleno">🏛️ Intervención en pleno</option>
+      </select>
+
+      <label>Tema / Asunto</label>
+      <input type="text" id="temaPost" placeholder="Ej: Farolas apagadas en El Calvario, baches en Cañada Honda...">
+
+      <label>Detalles adicionales</label>
+      <textarea id="detallesPost" placeholder="Añade más contexto, números, fechas, vecinos afectados..." style="min-height:70px"></textarea>
+
+      <label>Tono del post</label>
+      <select id="tonoPost">
+        <option value="cercano">😊 Cercano y directo</option>
+        <option value="firme">💪 Firme y contundente</option>
+        <option value="institucional">🏛️ Institucional</option>
+        <option value="informativo">📊 Informativo</option>
+      </select>
+
+      <button class="btn-generar" onclick="generarPost()">
+        <i class="fas fa-magic"></i> Generar post con IA
+      </button>
+
+      <div class="post-resultado" id="postResultado"></div>
+      <button class="btn-copiar" id="btnCopiar" onclick="copiarPost()">
+        <i class="fas fa-copy"></i> Copiar texto
+      </button>
+      <button class="btn-fb" id="btnFb" onclick="abrirFacebook()">
+        <i class="fab fa-facebook"></i> Abrir Facebook
+      </button>
+    </div>
+
+    <div class="post-card">
+      <h3><i class="fas fa-newspaper" style="color:var(--azul)"></i> Nota de Prensa</h3>
+      <label>Acontecimiento o tema</label>
+      <input type="text" id="temaNota" placeholder="Ej: Pleno del 30 de abril, presupuestos 2025...">
+      <button class="btn-generar" onclick="generarNota()" style="background:linear-gradient(135deg,var(--azul),var(--azul-claro))">
+        <i class="fas fa-file-alt"></i> Generar nota de prensa
+      </button>
+      <div class="post-resultado" id="notaResultado"></div>
+      <button class="btn-copiar" id="btnCopiarNota" onclick="copiarNota()">
+        <i class="fas fa-copy"></i> Copiar nota
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ TAB IDEAS ═══ -->
+  <div class="tab-content" id="tab-ideas">
+    <div style="background:white;border-radius:10px;padding:14px;box-shadow:var(--sombra);margin-bottom:14px">
+      <h3 style="color:var(--azul);font-size:14px;margin-bottom:12px"><i class="fas fa-lightbulb"></i> Propuestas de los vecinos</h3>
+      <div id="listaIdeasPanel">
+        <div class="spinner"><i class="fas fa-spinner fa-spin"></i> Cargando ideas...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TAB ASESOR IA ═══ -->
+  <div class="tab-content" id="tab-asesor">
+    <div style="background:white;border-radius:10px;padding:14px;box-shadow:var(--sombra)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #eee">
+        <div style="font-size:28px">🤖</div>
+        <div>
+          <div style="font-weight:700;color:var(--azul)">Asesor IA de José Blas</div>
+          <div style="font-size:12px;color:#666">Estrategia política · Argumentos · Intervenciones</div>
+        </div>
+      </div>
+
+      <div id="chatMsgs">
+        <div class="chat-msg ia">
+          <div class="chat-avatar chat-ia-av">🤖</div>
+          <div class="chat-burbuja">
+            ¡Hola José Blas! Soy tu asesor político IA. Puedo ayudarte con argumentos para el pleno, estrategias frente al equipo de gobierno, respuestas a críticas, análisis de quejas ciudadanas y comunicación con los vecinos.<br><br>
+            ¿En qué te ayudo hoy?
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:14px;display:flex;gap:8px;align-items:flex-end">
+        <textarea id="chatInput" placeholder="Escribe tu consulta..." rows="2"
+          onkeypress="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();enviarChat()}"
+          style="flex:1;min-height:44px;resize:vertical"></textarea>
+        <button onclick="enviarChat()" style="padding:11px 16px;background:linear-gradient(135deg,#8e44ad,#9b59b6);color:white;border:none;border-radius:8px;cursor:pointer;font-size:16px;flex-shrink:0">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
+
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">
+        <button onclick="preguntaRapida('¿Qué argumentos puedo usar en el próximo pleno sobre la gestión de residuos?')" style="padding:6px 10px;background:#f0e8fc;border:none;border-radius:16px;font-size:11px;cursor:pointer;color:#6c3483">💡 Argumentos pleno</button>
+        <button onclick="preguntaRapida('Dame un resumen de las quejas más urgentes y qué debo priorizar')" style="padding:6px 10px;background:#f0e8fc;border:none;border-radius:16px;font-size:11px;cursor:pointer;color:#6c3483">📊 Quejas urgentes</button>
+        <button onclick="preguntaRapida('¿Cómo puedo ganar más visibilidad en Gáldar de cara a las elecciones de 2027?')" style="padding:6px 10px;background:#f0e8fc;border:none;border-radius:16px;font-size:11px;cursor:pointer;color:#6c3483">🗳️ Estrategia 2027</button>
+        <button onclick="preguntaRapida('¿Qué temas de Gáldar generan más interés en redes sociales?')" style="padding:6px 10px;background:#f0e8fc;border:none;border-radius:16px;font-size:11px;cursor:pointer;color:#6c3483">📱 Redes sociales</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════
+// FIREBASE
+// ══════════════════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyC9HkQ9RLXQ3hVYNdFvTHhSGknC8sXKDkU",
+  authDomain: "galdar-quejas.firebaseapp.com",
+  databaseURL: "https://galdar-quejas-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "galdar-quejas",
+  storageBucket: "galdar-quejas.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "1:123456789:web:abcdef123456"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// ══════════════════════════════════
+// CREDENCIALES
+// ══════════════════════════════════
+const USUARIOS = {
+  'blas': 'galdar2024',
+  'admin': 'galdar2024',
+  'concejal': 'uxgc2024'
+};
+
+// ══════════════════════════════════
+// ESTADO
+// ══════════════════════════════════
+let todasQuejas = {};
+let mapaPanel = null;
+let chatHistory = [];
+let postActual = '';
+let notaActual = '';
+
+// ══════════════════════════════════
+// LOGIN
+// ══════════════════════════════════
+function doLogin() {
+  const u = document.getElementById('loginUser').value.trim().toLowerCase();
+  const p = document.getElementById('loginPass').value;
+  if (USUARIOS[u] && USUARIOS[u] === p) {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    iniciarApp();
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+  }
+}
+
+function logout() {
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+}
+
+// ══════════════════════════════════
+// INICIAR APP
+// ══════════════════════════════════
+function iniciarApp() {
+  db.ref('quejas').on('value', snap => {
+    todasQuejas = snap.val() || {};
+    actualizarStats();
+    renderQuejas();
+  });
+  db.ref('ideas').once('value', snap => {
+    const ideas = snap.val() || {};
+    const pleno = Object.values(ideas).filter(i => i.parPleno).length;
+    if (pleno > 0) {
+      document.getElementById('badgeIdeas').textContent = pleno;
+      document.getElementById('badgeIdeas').style.display = 'inline';
+    }
+    renderIdeas(ideas);
+  });
+}
+
+// ══════════════════════════════════
+// TABS
+// ══════════════════════════════════
+function tab(id) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  document.getElementById('tb-' + id).classList.add('active');
+  if (id === 'mapa') iniciarMapaPanel();
+}
+
+// ══════════════════════════════════
+// STATS
+// ══════════════════════════════════
+function actualizarStats() {
+  const arr = Object.values(todasQuejas);
+  document.getElementById('stTotal').textContent = arr.length;
+  document.getElementById('stPendientes').textContent = arr.filter(q => q.estado === 'pendiente').length;
+  document.getElementById('stUrgentes').textContent = arr.filter(q => q.urgencia === 'muy_urgente' || q.urgencia === 'urgente').length;
+  document.getElementById('stResueltas').textContent = arr.filter(q => q.estado === 'resuelto').length;
+  document.getElementById('badgeQuejas').textContent = arr.filter(q => q.estado === 'pendiente').length;
+}
+
+// ══════════════════════════════════
+// RENDER QUEJAS
+// ══════════════════════════════════
+function renderQuejas() {
+  const filtroE = document.getElementById('filtroEstado').value;
+  const filtroC = document.getElementById('filtroCat').value;
+  const filtroU = document.getElementById('filtroUrgencia').value;
+
+  let arr = Object.entries(todasQuejas).map(([k, v]) => ({...v, _id: k}));
+
+  if (filtroE) arr = arr.filter(q => q.estado === filtroE);
+  if (filtroC) arr = arr.filter(q => q.categoria === filtroC);
+  if (filtroU) arr = arr.filter(q => q.urgencia === filtroU);
+
+  arr.sort((a, b) => {
+    const urgOrd = { muy_urgente: 0, urgente: 1, normal: 2 };
+    return (urgOrd[a.urgencia] ?? 2) - (urgOrd[b.urgencia] ?? 2) || (b.timestamp || 0) - (a.timestamp || 0);
+  });
+
+  if (!arr.length) {
+    document.getElementById('listaQuejas').innerHTML = '<div class="spinner">No hay quejas con estos filtros</div>';
+    return;
+  }
+
+  document.getElementById('listaQuejas').innerHTML = arr.map(q => `
+    <div class="queja-card ${q.urgencia === 'muy_urgente' ? 'muy_urgente' : q.urgencia === 'urgente' ? 'urgente' : ''} ${q.estado === 'resuelto' ? 'resuelto' : ''}" id="qcard-${q._id}">
+      <div class="queja-header">
+        <div>
+          <div class="queja-barrio">📍 ${q.barrio || 'Sin barrio'}${q.calle ? ' — ' + q.calle : ''}</div>
+          <div class="queja-cat">${q.categoria || ''} ${q.subcategoria ? '· ' + q.subcategoria : ''}</div>
+        </div>
+        <div>
+          <span class="badge-estado badge-${q.urgencia === 'muy_urgente' ? 'muy_urgente' : q.urgencia === 'urgente' ? 'urgente' : (q.estado || 'pendiente')}">${
+            q.urgencia === 'muy_urgente' ? '🔴 MUY URGENTE' :
+            q.urgencia === 'urgente' ? '🟡 URGENTE' :
+            q.estado === 'resuelto' ? '✅ Resuelto' :
+            q.estado === 'en_proceso' ? '🔄 En proceso' :
+            q.estado === 'descartado' ? '❌ Descartado' : '⏳ Pendiente'
+          }</span>
+        </div>
+      </div>
+      <div class="queja-desc">${q.descripcion || ''}</div>
+      <div class="queja-meta">
+        <span><i class="fas fa-calendar"></i> ${q.fecha || '—'}</span>
+        ${q.nombre ? '<span><i class="fas fa-user"></i> ' + q.nombre + '</span>' : ''}
+        ${q.telefono ? '<span><i class="fas fa-phone"></i> ' + q.telefono + '</span>' : ''}
+        ${q.lat ? '<span><i class="fas fa-map-pin"></i> GPS ✅</span>' : ''}
+        ${q.foto === 'si' ? '<span><i class="fas fa-camera"></i> Foto</span>' : ''}
+      </div>
+      <div class="queja-acciones">
+        <button class="btn-accion btn-proceso" onclick="cambiarEstado('${q._id}','en_proceso')"><i class="fas fa-sync"></i> En proceso</button>
+        <button class="btn-accion btn-resuelto" onclick="cambiarEstado('${q._id}','resuelto')"><i class="fas fa-check"></i> Resuelto</button>
+        <button class="btn-accion btn-descartar" onclick="cambiarEstado('${q._id}','descartado')"><i class="fas fa-times"></i> Descartar</button>
+        <button class="btn-accion btn-ia" onclick="analizarIA('${q._id}')"><i class="fas fa-robot"></i> IA</button>
+        ${q.telefono ? '<button class="btn-accion btn-whatsapp" onclick="contactarVecino(\'' + q.telefono + '\',\'' + (q.barrio||'') + '\')"><i class="fab fa-whatsapp"></i></button>' : ''}
+      </div>
+      <div class="ia-panel" id="ia-${q._id}">
+        <h4><i class="fas fa-robot"></i> Análisis IA</h4>
+        <div class="ia-resp" id="ia-resp-${q._id}"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ══════════════════════════════════
+// CAMBIAR ESTADO
+// ══════════════════════════════════
+function cambiarEstado(id, estado) {
+  db.ref('quejas/' + id).update({ estado });
+  mostrarToast(`✅ Estado actualizado: ${estado}`);
+}
+
+// ══════════════════════════════════
+// CONTACTAR VECINO
+// ══════════════════════════════════
+function contactarVecino(tel, barrio) {
+  const msg = `Hola, soy José Blas Díaz, concejal de UxGC en Gáldar. He recibido tu queja sobre ${barrio} y la estamos tramitando. ¿Puedes darme más detalles?`;
+  window.open(`https://wa.me/34${tel.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+// ══════════════════════════════════
+// ANÁLISIS IA QUEJA
+// ══════════════════════════════════
+async function analizarIA(id) {
+  const panel = document.getElementById('ia-' + id);
+  const resp = document.getElementById('ia-resp-' + id);
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+  if (panel.style.display === 'none') return;
+
+  const q = todasQuejas[id];
+  resp.innerHTML = '<div class="ia-loading"><i class="fas fa-spinner fa-spin"></i> Analizando...</div>';
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: `Eres el asesor político de José Blas Díaz Bolaños, concejal de Unidos por Gran Canaria (UxGC) en Gáldar, Gran Canaria. Está en la oposición frente a un alcalde con 19/21 concejales. Tu análisis debe ser conciso, práctico y orientado a maximizar el impacto político de cada queja.`,
+        messages: [{ role: 'user', content: `Analiza esta queja ciudadana y dame: 1) Urgencia real (1-10), 2) Impacto político para UxGC, 3) Acción recomendada, 4) Si es útil para el próximo pleno.\n\nQueja: Barrio ${q.barrio}, ${q.categoria}${q.subcategoria ? ' - ' + q.subcategoria : ''}, urgencia declarada: ${q.urgencia}.\n\nDescripción: ${q.descripcion}` }]
+      })
+    });
+    const data = await res.json();
+    resp.textContent = data.content?.[0]?.text || 'Sin respuesta';
+  } catch(e) {
+    resp.textContent = 'Error al conectar con IA: ' + e.message;
+  }
+}
+
+// ══════════════════════════════════
+// GENERADOR POSTS
+// ══════════════════════════════════
+async function generarPost() {
+  const tipo = document.getElementById('tipoPost').value;
+  const tema = document.getElementById('temaPost').value;
+  const detalles = document.getElementById('detallesPost').value;
+  const tono = document.getElementById('tonoPost').value;
+
+  if (!tema) { mostrarToast('⚠️ Escribe el tema del post'); return; }
+
+  const resultDiv = document.getElementById('postResultado');
+  resultDiv.style.display = 'block';
+  resultDiv.innerHTML = '<div class="ia-loading"><i class="fas fa-spinner fa-spin"></i> Generando post...</div>';
+
+  const tonosMap = {
+    cercano: 'cercano, directo y próximo al ciudadano de a pie',
+    firme: 'firme, contundente y seguro, sin atacar personalmente',
+    institucional: 'institucional y formal',
+    informativo: 'informativo y objetivo con datos'
+  };
+  const tiposMap = {
+    gestion: 'comunicar una gestión o trámite realizado',
+    queja: 'informar sobre una queja ciudadana resuelta o en proceso',
+    propuesta: 'presentar una propuesta al pleno municipal',
+    denuncia: 'denunciar una irregularidad del equipo de gobierno',
+    logro: 'celebrar un logro conseguido',
+    pleno: 'informar sobre una intervención en pleno'
+  };
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: `Eres el community manager político de José Blas Díaz Bolaños, concejal de UxGC en Gáldar, Gran Canaria. Redactas posts para su página de Facebook. Estilo ${tonosMap[tono]}. Incluye emojis relevantes. Máximo 250 palabras. Cierra siempre con #Gáldar #UxGC #JoséBlas o similar. No incluyas ningún texto introductorio, solo el post.`,
+        messages: [{ role: 'user', content: `Genera un post de Facebook para ${tiposMap[tipo]}.\n\nTema: ${tema}\n${detalles ? 'Detalles: ' + detalles : ''}` }]
+      })
+    });
+    const data = await res.json();
+    postActual = data.content?.[0]?.text || '';
+    resultDiv.textContent = postActual;
+    document.getElementById('btnCopiar').style.display = 'inline-flex';
+    document.getElementById('btnFb').style.display = 'inline-flex';
+  } catch(e) {
+    resultDiv.textContent = 'Error: ' + e.message;
+  }
+}
+
+async function generarNota() {
+  const tema = document.getElementById('temaNota').value;
+  if (!tema) { mostrarToast('⚠️ Escribe el tema de la nota'); return; }
+
+  const resultDiv = document.getElementById('notaResultado');
+  resultDiv.style.display = 'block';
+  resultDiv.innerHTML = '<div class="ia-loading"><i class="fas fa-spinner fa-spin"></i> Generando nota...</div>';
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: 'Eres redactor de notas de prensa para José Blas Díaz Bolaños, concejal de UxGC en Gáldar (oposición). Formato periodístico: TITULAR, SUBTÍTULO, CUERPO (3 párrafos), CIERRE con datos de contacto. Tono formal. Solo el texto de la nota, sin explicaciones.',
+        messages: [{ role: 'user', content: `Nota de prensa sobre: ${tema}` }]
+      })
+    });
+    const data = await res.json();
+    notaActual = data.content?.[0]?.text || '';
+    resultDiv.textContent = notaActual;
+    document.getElementById('btnCopiarNota').style.display = 'inline-flex';
+  } catch(e) {
+    resultDiv.textContent = 'Error: ' + e.message;
+  }
+}
+
+function copiarPost() {
+  navigator.clipboard?.writeText(postActual).then(() => mostrarToast('✅ Post copiado'));
+}
+function copiarNota() {
+  navigator.clipboard?.writeText(notaActual).then(() => mostrarToast('✅ Nota copiada'));
+}
+function abrirFacebook() {
+  window.open('https://www.facebook.com', '_blank');
+}
+
+// ══════════════════════════════════
+// IDEAS PANEL
+// ══════════════════════════════════
+function renderIdeas(ideas) {
+  const arr = Object.values(ideas).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+  if (!arr.length) {
+    document.getElementById('listaIdeasPanel').innerHTML = '<div class="spinner">Sin ideas de momento</div>';
+    return;
+  }
+  document.getElementById('listaIdeasPanel').innerHTML = arr.map(i => `
+    <div class="idea-item ${i.parPleno ? 'idea-pleno' : ''}">
+      <div style="font-size:13px;line-height:1.5">${i.texto}</div>
+      <div style="font-size:11px;color:#aaa;margin-top:4px">
+        ${i.parPleno ? '🏛️ <strong>Para el pleno</strong> · ' : ''}${i.fecha || ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ══════════════════════════════════
+// ASESOR IA CHAT
+// ══════════════════════════════════
+async function enviarChat() {
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  agregarMensaje('user', msg);
+  chatHistory.push({ role: 'user', content: msg });
+
+  agregarMensaje('ia', '<i class="fas fa-spinner fa-spin"></i> Pensando...');
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: `Eres el asesor político personal de José Blas Díaz Bolaños, concejal de Unidos por Gran Canaria (UxGC) en Gáldar, Gran Canaria. Solo tiene 1 escaño de 21 en la oposición frente al alcalde Teodoro Sosa (BNR-NC) que lleva desde 2007 con mayoría aplastante. Tu objetivo es ayudar a José Blas a maximizar su visibilidad, ganar credibilidad ciudadana y crecer electoralmente de cara a 2027. Eres directo, práctico y conoces bien la política local canaria. Respuestas concisas y accionables.`,
+        messages: chatHistory
+      })
+    });
+    const data = await res.json();
+    const respIA = data.content?.[0]?.text || 'Sin respuesta';
+    chatHistory.push({ role: 'assistant', content: respIA });
+
+    // Reemplazar el "pensando..."
+    const msgs = document.getElementById('chatMsgs');
+    msgs.lastElementChild.remove();
+    agregarMensaje('ia', respIA);
+  } catch(e) {
+    const msgs = document.getElementById('chatMsgs');
+    msgs.lastElementChild.remove();
+    agregarMensaje('ia', 'Error al conectar: ' + e.message);
+  }
+}
+
+function preguntaRapida(txt) {
+  document.getElementById('chatInput').value = txt;
+  enviarChat();
+}
+
+function agregarMensaje(tipo, texto) {
+  const msgs = document.getElementById('chatMsgs');
+  const div = document.createElement('div');
+  div.className = `chat-msg ${tipo}`;
+  div.innerHTML = `
+    <div class="chat-avatar ${tipo === 'ia' ? 'chat-ia-av' : 'chat-user-av'}">${tipo === 'ia' ? '🤖' : '👤'}</div>
+    <div class="chat-burbuja">${tipo === 'ia' ? texto.replace(/\n/g,'<br>') : texto}</div>
+  `;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+// ══════════════════════════════════
+// MAPA PANEL
+// ══════════════════════════════════
+function iniciarMapaPanel() {
+  if (mapaPanel) return;
+  const script = document.createElement('script');
+  script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+  document.head.appendChild(script);
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+  document.head.appendChild(link);
+
+  script.onload = () => {
+    mapaPanel = L.map('mapaPanel').setView([28.1500, -15.6400], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap'
+    }).addTo(mapaPanel);
+
+    Object.values(todasQuejas).forEach(q => {
+      if (q.lat && q.lng) {
+        const color = q.urgencia === 'muy_urgente' ? 'red' :
+                      q.urgencia === 'urgente' ? 'orange' : '#2e86c1';
+        L.circleMarker([q.lat, q.lng], {
+          radius: 10, fillColor: color, color: 'white',
+          weight: 2, opacity: 1, fillOpacity: 0.8
+        }).addTo(mapaPanel)
+          .bindPopup(`<b>${q.barrio}</b><br>${q.categoria}<br><em>${q.descripcion?.substring(0,80)}</em><br><b>Estado: ${q.estado || 'pendiente'}</b>`);
+      }
+    });
+  };
+}
+
+// ══════════════════════════════════
+// TOAST
+// ══════════════════════════════════
+function mostrarToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 3000);
+}
+</script>
+</body>
+</html>
