@@ -252,6 +252,18 @@ label { font-size: 12px; font-weight: 600; color: var(--texto); display: block; 
 
 /* ── SPINNER ── */
 .spinner { text-align: center; padding: 30px; color: #aaa; font-size: 13px; }
+
+/* ── RIVALES ── */
+.rival-card {
+  background: white; border-radius: 10px; padding: 13px;
+  box-shadow: var(--sombra); margin-bottom: 8px;
+  border-left: 4px solid #e74c3c;
+}
+.rival-inicial {
+  width: 38px; height: 38px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 800; font-size: 13px; flex-shrink: 0;
+}
 </style>
 </head>
 <body>
@@ -310,6 +322,9 @@ label { font-size: 12px; font-weight: 600; color: var(--texto); display: block; 
     </button>
     <button class="tab-btn" onclick="tab('asesor')" id="tb-asesor">
       <i class="fas fa-robot"></i>Asesor IA
+    </button>
+    <button class="tab-btn" onclick="tab('consistorio')" id="tb-consistorio">
+      <i class="fas fa-chess"></i>Rivales
     </button>
   </div>
 
@@ -466,6 +481,348 @@ label { font-size: 12px; font-weight: 600; color: var(--texto); display: block; 
       </div>
     </div>
   </div>
+</div>
+
+<!-- ═══ TAB CONSISTORIO ═══ -->
+<div class="tab-content" id="tab-consistorio">
+
+  <!-- ALCALDE -->
+  <div style="background:linear-gradient(135deg,#7b241c,#c0392b);color:white;border-radius:12px;padding:16px;margin-bottom:14px">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+      <div style="font-size:36px">👑</div>
+      <div>
+        <div style="font-weight:800;font-size:17px">Teodoro Sosa Monzón</div>
+        <div style="font-size:12px;opacity:0.85">ALCALDE · BNR-NC · En el poder desde 2007</div>
+        <div style="font-size:11px;opacity:0.7">78,84% votos en 2023 · 19 de 21 concejales</div>
+      </div>
+    </div>
+    <div style="background:rgba(0,0,0,0.2);border-radius:8px;padding:10px;font-size:12px;margin-bottom:10px">
+      <div style="font-weight:700;margin-bottom:4px">⚠️ PUNTOS DÉBILES:</div>
+      <div>• Gestión económica opaca — reconocimientos extrajudiciales de crédito</div>
+      <div>• 19 años sin oposición real — posible exceso de confianza</div>
+      <div>• Gastos irregulares documentados en plenos</div>
+      <div>• Difícil renovación generacional en su partido</div>
+    </div>
+    <button onclick="preguntarSobreRival('Alcalde Teodoro Sosa Monzón, BNR-NC, 19 años de alcalde. Dame argumentos para confrontarle en el próximo pleno sobre su gestión económica.')" 
+      style="width:100%;padding:10px;background:rgba(255,255,255,0.2);border:1.5px solid white;color:white;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">
+      🤖 Pedir estrategia al Asesor IA
+    </button>
+  </div>
+
+  <!-- OPOSICIÓN -->
+  <div style="background:linear-gradient(135deg,#1a5276,#2e86c1);color:white;border-radius:12px;padding:14px;margin-bottom:14px">
+    <div style="font-size:13px;font-weight:700;margin-bottom:10px;opacity:0.8">👥 GRUPO DE OPOSICIÓN (Grupo Mixto)</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <div style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:18px">🏆</div>
+      <div>
+        <div style="font-weight:700;font-size:14px">José Blas Díaz Bolaños</div>
+        <div style="font-size:11px;opacity:0.8">Portavoz UxGC · TÚ</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:18px">🔵</div>
+      <div>
+        <div style="font-weight:700;font-size:14px">Francisco J. Hernández Rosales</div>
+        <div style="font-size:11px;opacity:0.8">Portavoz PSC-PSOE · Van por separado</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONCEJALES GOBIERNO -->
+  <div style="background:white;border-radius:12px;padding:14px;box-shadow:var(--sombra);margin-bottom:8px">
+    <div style="font-size:14px;font-weight:700;color:var(--azul);margin-bottom:12px">
+      <i class="fas fa-chess-board"></i> Equipo de Gobierno BNR-NC
+    </div>
+    <div style="font-size:11px;color:#888;margin-bottom:10px">Pulsa el botón IA para obtener argumentos contra cada área</div>
+  </div>
+
+  
+  <div class="rival-card" id="rival-0">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="rival-inicial" style="background:#e74c3c">O</div>
+        <div>
+          <div style="font-weight:700;font-size:13px">Onalia Bueno García</div>
+          <div style="font-size:11px;color:#666">Hacienda y Policía Local</div>
+        </div>
+      </div>
+      <button onclick="preguntarSobreRival('Onalia Bueno García, concejal de Hacienda y Policía Local. Dame argumentos y preguntas para confrontarle en pleno.')"
+        style="padding:6px 10px;background:linear-gradient(135deg,#8e44ad,#9b59b6);color:white;border:none;border-radius:6px;font-size:11px;cursor:pointer;flex-shrink:0">
+        🤖 IA
+      </button>
+    </div>
+    <div class="rival-ia" id="rival-ia-0" style="display:none;margin-top:10px;background:#f4eefb;border-radius:8px;padding:10px;font-size:12px;line-height:1.5;color:var(--texto)">
+      <i class="fas fa-spinner fa-spin"></i> Consultando asesor...
+    </div>
+  </div>
+  
+  <div class="rival-card" id="rival-1">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="rival-inicial" style="background:#e67e22">R</div>
+        <div>
+          <div style="font-weight:700;font-size:13px">Raúl Martel Álamo</div>
+          <div style="font-size:11px;color:#666">Urbanismo y Obras</div>
+        </div>
+      </div>
+      <button onclick="preguntarSobreRival('Raúl Martel Álamo, concejal de Urbanismo y Obras. Dame argumentos y preguntas para confrontarle en pleno.')"
+        style="padding:6px 10px;background:linear-gradient(135deg,#8e44ad,#9b59b6);color:white;border:none;border-radius:6px;font-size:11px;cursor:pointer;flex-shrink:0">
+        🤖 IA
+      </button>
+    </div>
+    <div class="rival-ia" id="rival-ia-1" style="display:none;margin-top:10px;background:#f4eefb;border-radius:8px;padding:10px;font-size:12px;line-height:1.5;color:var(--texto)">
+      <i class="fas fa-spinner fa-spin"></i> Consultando asesor...
+    </div>
+  </div>
+  
+  <div class="rival-card" id="rival-2">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="rival-inicial" style="background:#3498db">C</div>
+        <div>
+          <div style="font-weight:700;font-size:13px">Carmen Rosa Suárez</div>
+          <div style="font-size:11px;color:#666">Educación y Cultura</div>
+        </div>
+      </div>
+      <button onclick="preguntarSobreRival('Carmen Rosa Suárez, concejal de Educación y Cultura. Dame argumentos y preguntas para confrontarle en pleno.')"
+        style="padding:6px 10px;background:linear-gradient(135deg,#8e44ad,#9b59b6);color:white;border:none;border-radius:6px;font-size:11px;cursor:pointer;flex-shrink:0">
+        🤖 IA
+      </button>
+    </div>
+    <div class="rival-ia" id="rival-ia-2" style="display:none;margin-top:10px;background:#f4eefb;border-radius:8px;padding:10px;font-size:12px;line-height:1.5;color:var(--texto)">
+      <i class="fas fa-spinner fa-spin"></i> Consultando asesor...
+    </div>
+  </div>
+  
+  <div class="rival-card" id="rival-3">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="rival-inicial" style="background:#9b59b6">V</div>
+        <div>
+          <div style="font-weight:700;font-size:13px">Victorina Ojeda</div>
+          <div style="font-size:11px;color:#666">Servicios Sociales y Mayores</div>
+        </div>
+      </div>
+      <button onclick="preguntarSobreRival('Victorina Ojeda, concejal de Servicios Sociales y Mayores. Dame argumentos y preguntas para confrontarle en pleno.')"
+        style="padding:6px 10px;background:linear-gradient(135deg,#8e44ad,#9b59b6);color:white;border:none;border-radius:6px;font-size:11px;cursor:pointer;flex-shrink:0">
+        🤖 IA
+      </button>
+    </div>
+    <div class="rival-ia" id="rival-ia-3" style="display:none;margin-top:10px;background:#f4eefb;border-radius:8px;padding:10px;font-size:12px;line-height:1.5;color:var(--texto)">
+      <i class="fas fa-spinner fa-spin"></i> Consultando asesor...
+    </div>
+  </div>
+  
+  <div class="rival-card" id="rival-4">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="rival-inicial" style="background:#27ae60">A</div>
+        <div>
+          <div style="font-weight:700;font-size:13px">Alexis Castellano</div>
+          <div style="font-size:11px;color:#666">Desarrollo Local y Turismo</div>
+        </div>
+      </div>
+      <button onclick="preguntarSobreRival('Alexis Castellano, concejal de Desarrollo Local y Turismo. Dame argumentos y preguntas para confrontarle en pleno.')"
+        style="padding:6px 10px;background:linear-gradient(135deg,#8e44ad,#9b59b6);color:white;border:none;border-radius:6px;font-size:11px;cursor:pointer;flex-shrink:0">
+        🤖 IA
+      </button>
+    </div>
+    <div class="rival-ia" id="rival-ia-4" style="display:none;margin-top:10px;background:#f4eefb;border-radius:8px;padding:10px;font-size:12px;line-height:1.5;color:var(--texto)">
+      <i class="fas fa-spinner fa-spin"></i> Consultando asesor...
+    </div>
+  </div>
+  
+  <div class="rival-card" id="rival-5">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="rival-inicial" style="background:#16a085">E</div>
+        <div>
+          <div style="font-weight:700;font-size:13px">Esteban Fumero</div>
+          <div style="font-size:11px;color:#666">Medio Ambiente</div>
+        </div>
+      </div>
+      <button onclick="preguntarSobreRival('Esteban Fumero, concejal de Medio Ambiente. Dame argumentos y preguntas para confrontarle en pleno.')"
+        style="padding:6px 10px;background:linear-gradient(135deg,#8e44ad,#9b59b6);color:white;border:none;border-radius:6px;font-size:11px;cursor:pointer;flex-shrink:0">
+        🤖 IA
+      </button>
+    </div>
+    <div class="rival-ia" id="rival-ia-5" style="display:none;margin-top:10px;background:#f4eefb;border-radius:8px;padding:10px;font-size:12px;line-height:1.5;color:var(--texto)">
+      <i class="fas fa-spinner fa-spin"></i> Consultando asesor...
+    </div>
+  </div>
+  
+  <div class="rival-card" id="rival-6">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="rival-inicial" style="background:#2980b9">Ca</div>
+        <div>
+          <div style="font-weight:700;font-size:13px">Carmelo Vega</div>
+          <div style="font-size:11px;color:#666">Deportes</div>
+        </div>
+      </div>
+      <button onclick="preguntarSobreRival('Carmelo Vega, concejal de Deportes. Dame argumentos y preguntas para confrontarle en pleno.')"
+        style="padding:6px 10px;background:linear-gradient(135deg,#8e44ad,#9b59b6);color:white;border:none;border-radius:6px;font-size:11px;cursor:pointer;flex-shrink:0">
+        🤖 IA
+      </button>
+    </div>
+    <div class="rival-ia" id="rival-ia-6" style="display:none;margin-top:10px;background:#f4eefb;border-radius:8px;padding:10px;font-size:12px;line-height:1.5;color:var(--texto)">
+      <i class="fas fa-spinner fa-spin"></i> Consultando asesor...
+    </div>
+  </div>
+  
+  <div class="rival-card" id="rival-7">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="rival-inicial" style="background:#27ae60">N</div>
+        <div>
+          <div style="font-weight:700;font-size:13px">Nicolás Mederos Díaz</div>
+          <div style="font-size:11px;color:#666">Parques y Jardines</div>
+        </div>
+      </div>
+      <button onclick="preguntarSobreRival('Nicolás Mederos Díaz, concejal de Parques y Jardines. Dame argumentos y preguntas para confrontarle en pleno.')"
+        style="padding:6px 10px;background:linear-gradient(135deg,#8e44ad,#9b59b6);color:white;border:none;border-radius:6px;font-size:11px;cursor:pointer;flex-shrink:0">
+        🤖 IA
+      </button>
+    </div>
+    <div class="rival-ia" id="rival-ia-7" style="display:none;margin-top:10px;background:#f4eefb;border-radius:8px;padding:10px;font-size:12px;line-height:1.5;color:var(--texto)">
+      <i class="fas fa-spinner fa-spin"></i> Consultando asesor...
+    </div>
+  </div>
+  
+  <div class="rival-card" id="rival-8">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="rival-inicial" style="background:#e74c3c">An</div>
+        <div>
+          <div style="font-weight:700;font-size:13px">Ancor Bolaños Delgado</div>
+          <div style="font-size:11px;color:#666">Actividad Física y Salud</div>
+        </div>
+      </div>
+      <button onclick="preguntarSobreRival('Ancor Bolaños Delgado, concejal de Actividad Física y Salud. Dame argumentos y preguntas para confrontarle en pleno.')"
+        style="padding:6px 10px;background:linear-gradient(135deg,#8e44ad,#9b59b6);color:white;border:none;border-radius:6px;font-size:11px;cursor:pointer;flex-shrink:0">
+        🤖 IA
+      </button>
+    </div>
+    <div class="rival-ia" id="rival-ia-8" style="display:none;margin-top:10px;background:#f4eefb;border-radius:8px;padding:10px;font-size:12px;line-height:1.5;color:var(--texto)">
+      <i class="fas fa-spinner fa-spin"></i> Consultando asesor...
+    </div>
+  </div>
+  
+  <div class="rival-card" id="rival-9">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="rival-inicial" style="background:#8e44ad">Nu</div>
+        <div>
+          <div style="font-weight:700;font-size:13px">Nuria Esther Vega Valencia</div>
+          <div style="font-size:11px;color:#666">Participación Ciudadana y Barrios</div>
+        </div>
+      </div>
+      <button onclick="preguntarSobreRival('Nuria Esther Vega Valencia, concejal de Participación Ciudadana y Barrios. Dame argumentos y preguntas para confrontarle en pleno.')"
+        style="padding:6px 10px;background:linear-gradient(135deg,#8e44ad,#9b59b6);color:white;border:none;border-radius:6px;font-size:11px;cursor:pointer;flex-shrink:0">
+        🤖 IA
+      </button>
+    </div>
+    <div class="rival-ia" id="rival-ia-9" style="display:none;margin-top:10px;background:#f4eefb;border-radius:8px;padding:10px;font-size:12px;line-height:1.5;color:var(--texto)">
+      <i class="fas fa-spinner fa-spin"></i> Consultando asesor...
+    </div>
+  </div>
+  
+  <div class="rival-card" id="rival-10">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="rival-inicial" style="background:#d35400">El</div>
+        <div>
+          <div style="font-weight:700;font-size:13px">Eleazar Rodríguez Díaz</div>
+          <div style="font-size:11px;color:#666">Vivienda, Vías y Obras</div>
+        </div>
+      </div>
+      <button onclick="preguntarSobreRival('Eleazar Rodríguez Díaz, concejal de Vivienda, Vías y Obras. Dame argumentos y preguntas para confrontarle en pleno.')"
+        style="padding:6px 10px;background:linear-gradient(135deg,#8e44ad,#9b59b6);color:white;border:none;border-radius:6px;font-size:11px;cursor:pointer;flex-shrink:0">
+        🤖 IA
+      </button>
+    </div>
+    <div class="rival-ia" id="rival-ia-10" style="display:none;margin-top:10px;background:#f4eefb;border-radius:8px;padding:10px;font-size:12px;line-height:1.5;color:var(--texto)">
+      <i class="fas fa-spinner fa-spin"></i> Consultando asesor...
+    </div>
+  </div>
+  
+  <div class="rival-card" id="rival-11">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="rival-inicial" style="background:#2c3e50">P</div>
+        <div>
+          <div style="font-weight:700;font-size:13px">Pedro Mendoza Vega</div>
+          <div style="font-size:11px;color:#666">Tráfico y Movilidad</div>
+        </div>
+      </div>
+      <button onclick="preguntarSobreRival('Pedro Mendoza Vega, concejal de Tráfico y Movilidad. Dame argumentos y preguntas para confrontarle en pleno.')"
+        style="padding:6px 10px;background:linear-gradient(135deg,#8e44ad,#9b59b6);color:white;border:none;border-radius:6px;font-size:11px;cursor:pointer;flex-shrink:0">
+        🤖 IA
+      </button>
+    </div>
+    <div class="rival-ia" id="rival-ia-11" style="display:none;margin-top:10px;background:#f4eefb;border-radius:8px;padding:10px;font-size:12px;line-height:1.5;color:var(--texto)">
+      <i class="fas fa-spinner fa-spin"></i> Consultando asesor...
+    </div>
+  </div>
+  
+  <div class="rival-card" id="rival-12">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="rival-inicial" style="background:#7f8c8d">An</div>
+        <div>
+          <div style="font-weight:700;font-size:13px">Antonia Isabel Moreno Jiménez</div>
+          <div style="font-size:11px;color:#666">Residuos y Limpieza</div>
+        </div>
+      </div>
+      <button onclick="preguntarSobreRival('Antonia Isabel Moreno Jiménez, concejal de Residuos y Limpieza. Dame argumentos y preguntas para confrontarle en pleno.')"
+        style="padding:6px 10px;background:linear-gradient(135deg,#8e44ad,#9b59b6);color:white;border:none;border-radius:6px;font-size:11px;cursor:pointer;flex-shrink:0">
+        🤖 IA
+      </button>
+    </div>
+    <div class="rival-ia" id="rival-ia-12" style="display:none;margin-top:10px;background:#f4eefb;border-radius:8px;padding:10px;font-size:12px;line-height:1.5;color:var(--texto)">
+      <i class="fas fa-spinner fa-spin"></i> Consultando asesor...
+    </div>
+  </div>
+  
+  <div class="rival-card" id="rival-13">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="rival-inicial" style="background:#2980b9">Cr</div>
+        <div>
+          <div style="font-weight:700;font-size:13px">Cristian Perdomo Bolaños</div>
+          <div style="font-size:11px;color:#666">Alumbrado y Agua</div>
+        </div>
+      </div>
+      <button onclick="preguntarSobreRival('Cristian Perdomo Bolaños, concejal de Alumbrado y Agua. Dame argumentos y preguntas para confrontarle en pleno.')"
+        style="padding:6px 10px;background:linear-gradient(135deg,#8e44ad,#9b59b6);color:white;border:none;border-radius:6px;font-size:11px;cursor:pointer;flex-shrink:0">
+        🤖 IA
+      </button>
+    </div>
+    <div class="rival-ia" id="rival-ia-13" style="display:none;margin-top:10px;background:#f4eefb;border-radius:8px;padding:10px;font-size:12px;line-height:1.5;color:var(--texto)">
+      <i class="fas fa-spinner fa-spin"></i> Consultando asesor...
+    </div>
+  </div>
+  
+  <div class="rival-card" id="rival-14">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="rival-inicial" style="background:#1abc9c">To</div>
+        <div>
+          <div style="font-weight:700;font-size:13px">Antonio María Benítez Melián</div>
+          <div style="font-size:11px;color:#666">Juventud y Bienestar Animal</div>
+        </div>
+      </div>
+      <button onclick="preguntarSobreRival('Antonio María Benítez Melián, concejal de Juventud y Bienestar Animal. Dame argumentos y preguntas para confrontarle en pleno.')"
+        style="padding:6px 10px;background:linear-gradient(135deg,#8e44ad,#9b59b6);color:white;border:none;border-radius:6px;font-size:11px;cursor:pointer;flex-shrink:0">
+        🤖 IA
+      </button>
+    </div>
+    <div class="rival-ia" id="rival-ia-14" style="display:none;margin-top:10px;background:#f4eefb;border-radius:8px;padding:10px;font-size:12px;line-height:1.5;color:var(--texto)">
+      <i class="fas fa-spinner fa-spin"></i> Consultando asesor...
+    </div>
+  </div>
+  
+
 </div>
 
 <div class="toast" id="toast"></div>
@@ -934,6 +1291,19 @@ function iniciarMapaPanel() {
       }
     });
   };
+}
+
+// ══════════════════════════════════
+// CONSISTORIO — PREGUNTAR AL ASESOR
+// ══════════════════════════════════
+async function preguntarSobreRival(contexto) {
+  // Navegar al tab asesor y hacer la pregunta
+  tab('asesor');
+  document.getElementById('tb-asesor').classList.add('active');
+  setTimeout(() => {
+    document.getElementById('chatInput').value = contexto;
+    enviarChat();
+  }, 300);
 }
 
 // ══════════════════════════════════
