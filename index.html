@@ -662,7 +662,7 @@ async function analizarIA(id) {
   resp.innerHTML = '<div class="ia-loading"><i class="fas fa-spinner fa-spin"></i> Analizando...</div>';
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('https://orange-boat-6d42.pedrosaborrego.workers.dev', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -710,7 +710,7 @@ async function generarPost() {
   };
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('https://orange-boat-6d42.pedrosaborrego.workers.dev', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -739,7 +739,7 @@ async function generarNota() {
   resultDiv.innerHTML = '<div class="ia-loading"><i class="fas fa-spinner fa-spin"></i> Generando nota...</div>';
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('https://orange-boat-6d42.pedrosaborrego.workers.dev', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -801,7 +801,7 @@ async function enviarChat() {
   agregarMensaje('ia', '<i class="fas fa-spinner fa-spin"></i> Pensando...');
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('https://orange-boat-6d42.pedrosaborrego.workers.dev', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
