@@ -72,6 +72,14 @@ header {
   border-radius: 8px; padding: 7px 12px; cursor: pointer; font-size: 13px;
 }
 
+.coste-header {
+  background: rgba(0,0,0,0.25); border-radius: 8px;
+  padding: 5px 10px; text-align: center; min-width: 80px;
+}
+.coste-header .coste-num { font-size: 14px; font-weight: 800; color: #f39c12; }
+.coste-header .coste-label { font-size: 9px; opacity: 0.8; margin-top: 1px; }
+.coste-consulta { font-size: 10px; color: #aaa; text-align: right; margin-top: 6px; font-style: italic; }
+
 /* ── TABS ── */
 .tabs {
   display: flex; background: white;
@@ -300,9 +308,15 @@ label { font-size: 12px; font-weight: 600; color: var(--texto); display: block; 
         <p>José Blas Díaz Bolaños · UxGC</p>
       </div>
     </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="coste-header">
+        <div class="coste-num" id="costeTotal">0,000 €</div>
+        <div class="coste-label">coste sesión</div>
+      </div>
     <button class="btn-logout" onclick="logout()">
       <i class="fas fa-sign-out-alt"></i>
     </button>
+    </div>
   </header>
 
   <div class="tabs">
@@ -1516,7 +1530,7 @@ Concejala de Hacienda: Valeria Guerra (OJO — el organigrama oficial dice Onali
     });
     const data = await res.json();
     const respIA = data.content?.[0]?.text || 'Sin respuesta';
-    chatHistory.push({ role: 'assistant', content: respIA });
+    chatHistory.push({ role: "assistant", content: respIA }); sumarCoste("asesor");
 
     // Reemplazar el "pensando..."
     const msgs = document.getElementById('chatMsgs');
@@ -1608,6 +1622,22 @@ function mostrarToast(msg) {
 // ══════════════════════════════════════════════════════════
 const WORKER = 'https://orange-boat-6d42.pedrosaborrego.workers.dev';
 
+// ── CONTADOR DE COSTE ─────────────────────────────────────
+let costeSesion = 0;
+const COSTES = {
+  asesor: 0.030, prensa: 0.100, pleno: 0.350,
+  ruego: 0.060, debate: 0.080, documentos: 0.180,
+  vecinos: 0.040, queja: 0.025, post: 0.030, nota: 0.030
+};
+function sumarCoste(tipo) {
+  costeSesion += COSTES[tipo] || 0.030;
+  const el = document.getElementById('costeTotal');
+  if (el) el.textContent = costeSesion.toFixed(3) + ' €';
+}
+function etiquetaCoste(tipo) {
+  return `<div class="coste-consulta">💰 ~${(COSTES[tipo]||0.030).toFixed(3)} € esta consulta · Sesión: ${costeSesion.toFixed(3)} €</div>`;
+}
+
 async function claudeCall(system, userMsg, maxTokens = 1500) {
   const res = await fetch(WORKER, {
     method: 'POST',
@@ -1666,7 +1696,7 @@ Analiza artículos de prensa y devuelve SIEMPRE esta estructura:
 
     const msg = `ARTÍCULO: ${url}\nCONTENIDO: ${contenido}\n${foco ? 'ASPECTO DE INTERÉS: ' + foco : ''}`;
     const resp = await claudeCall(system, msg);
-    mostrarEnPanel('prensa-resultado', 'btnCopiarPrensa', resp);
+    mostrarEnPanel('prensa-resultado', 'btnCopiarPrensa', resp); sumarCoste('prensa');
   } catch(e) { mostrarEnPanel('prensa-resultado', null, '⚠️ Error: ' + e.message); }
 }
 
@@ -1692,7 +1722,7 @@ PUNTO [N]: [TÍTULO]
 📢 PARA LOS VECINOS: (cómo explicarlo fuera del pleno)`;
 
     const resp = await claudeCall(system, `PLENO DE GÁLDAR\nFecha: ${fecha||'Próximo pleno'}\nORDEN DEL DÍA:\n${orden}\n${contexto?'CONTEXTO: '+contexto:''}`, 2000);
-    mostrarEnPanel('pleno-resultado', 'btnCopiarPleno', resp);
+    mostrarEnPanel('pleno-resultado', 'btnCopiarPleno', resp); sumarCoste('pleno');
   } catch(e) { mostrarEnPanel('pleno-resultado', null, '⚠️ Error: ' + e.message); }
 }
 
@@ -1716,7 +1746,7 @@ Redactas escritos formales para el Ayuntamiento de Gáldar con formato oficial d
 Incluye: encabezado formal, cuerpo argumentado, solicitud concreta, pie con firma y fecha.
 Al final añade una versión coloquial para explicarlo a los vecinos.`;
     const resp = await claudeCall(system, `Redacta un ${tipos[tipo]} para:\nDIRIGIDO A: ${destinos[destino]}\nCONCEJAL: José Blas Díaz Bolaños, Grupo Municipal UxGC\nINTENCIÓN: ${texto}`);
-    mostrarEnPanel('ruego-resultado', 'btnCopiarRuego', resp);
+    mostrarEnPanel('ruego-resultado', 'btnCopiarRuego', resp); sumarCoste('ruego');
   } catch(e) { mostrarEnPanel('ruego-resultado', null, '⚠️ Error: ' + e.message); }
 }
 
@@ -1744,7 +1774,7 @@ Prepara réplicas para plenos municipales. Estructura SIEMPRE:
 ⛔ LO QUE NO DEBES DECIR
 📣 VERSIÓN PARA REDES SOCIALES DESPUÉS DEL PLENO`;
     const resp = await claudeCall(system, `SIMULACIÓN DE DEBATE\nRival: ${rivales[rival]}\nTema: ${tema||'Municipal'}\nATAQUE: "${ataque}"`);
-    mostrarEnPanel('debate-resultado', 'btnCopiarDebate', resp);
+    mostrarEnPanel('debate-resultado', 'btnCopiarDebate', resp); sumarCoste('debate');
   } catch(e) { mostrarEnPanel('debate-resultado', null, '⚠️ Error: ' + e.message); }
 }
 
@@ -1766,7 +1796,7 @@ Analiza documentos oficiales y devuelve:
 ❓ PREGUNTAS QUE DEBERÍA HACER BLAS EN PLENO
 📣 CÓMO EXPLICARLO A LOS VECINOS (máx. 3 frases)`;
     const resp = await claudeCall(system, `TIPO: ${tipos[tipo]}\nMUNICIPIO: Gáldar\nDOCUMENTO:\n${texto.substring(0,8000)}\n${foco?'INTERÉS PRIORITARIO: '+foco:''}`, 1500);
-    mostrarEnPanel('doc-resultado', 'btnCopiarDoc', resp);
+    mostrarEnPanel('doc-resultado', 'btnCopiarDoc', resp); sumarCoste('documentos');
   } catch(e) { mostrarEnPanel('doc-resultado', null, '⚠️ Error: ' + e.message); }
 }
 
@@ -1791,10 +1821,9 @@ REGLA: Si un vecino de 70 años sin estudios no lo entiende, no es buena comunic
 Sin tecnicismos, sin siglas sin explicar, sin frases largas.
 Siempre orientado a qué significa para el vecino, no para el político.`;
     const resp = await claudeCall(system, `Redacta un ${formatos[formato]} para UxGC Gáldar.\nTono: ${tonos[tono]}\nINFORMACIÓN: ${texto}`);
-    mostrarEnPanel('vecinos2-resultado', 'btnCopiarVecinos', resp);
+    mostrarEnPanel('vecinos2-resultado', 'btnCopiarVecinos', resp); sumarCoste('vecinos');
   } catch(e) { mostrarEnPanel('vecinos2-resultado', null, '⚠️ Error: ' + e.message); }
 }
 </script>
 </body>
 </html>
-Panel completo v2
